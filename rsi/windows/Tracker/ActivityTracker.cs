@@ -30,17 +30,45 @@ namespace Tracker
             {
                 trackerInstance = new ActivityTracker();
             }
-
         }
 
-        private ActivityHook choosesc;
+        public static ActivityTracker GetInstance()
+        {
+            Start();
+            return trackerInstance;
+        }
+
+        private ActivityHook hook;
+
+        public Timer workTimer;
+        public Timer breakTimer;
+
         private ActivityTracker()
         {
-            choosesc = new ActivityHook();
-            choosesc.OnMouseActivity += new MouseEventHandler(choose_OnMouseActivity);
-            choosesc.KeyDown += new KeyEventHandler(MyKeyDown);
-            choosesc.KeyPress += new KeyPressEventHandler(MyKeyPress);
-            choosesc.KeyUp += new KeyEventHandler(MyKeyUp);
+            hook = new ActivityHook();
+            hook.OnMouseActivity += new MouseEventHandler(choose_OnMouseActivity);
+            hook.KeyDown += new KeyEventHandler(MyKeyDown);
+            hook.KeyPress += new KeyPressEventHandler(MyKeyPress);
+            hook.KeyUp += new KeyEventHandler(MyKeyUp);
+
+            workTimer = new Timer();
+            workTimer.Interval = Activity.GetInstance().WorkLength;
+            workTimer.Enabled = true;
+            workTimer.Tick += new System.EventHandler(this.workTimer_Tick);
+
+            breakTimer = new Timer();
+            breakTimer.Interval = Activity.GetInstance().BreakLength;
+            breakTimer.Tick += new System.EventHandler(this.breakTimer_Tick);
+        }
+
+        private void workTimer_Tick(object sender, EventArgs e)
+        {
+            FormState.GetInstance().Maximize();
+        }
+
+        private void breakTimer_Tick(object sender, EventArgs e)
+        {
+            FormState.GetInstance().Restore();
         }
 
         private void setTextje()
@@ -77,8 +105,6 @@ namespace Tracker
         {
             Console.Write(e.KeyData.ToString());
         }
-
-
 
         private void choose_OnMouseActivity(object sender, MouseEventArgs e)
         {

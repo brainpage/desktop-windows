@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.IO;
-using System.Reflection;
 
 namespace Tracker
 {
@@ -14,31 +10,35 @@ namespace Tracker
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
-            ActivitySocket.GetInstance().send("hi");
-            label1.Text = Activity.GetInstance().IpAddress;
+            Activity.GetInstance();
+            FormState.SetForm(this);
+
             ActivityTracker.Start();
         }
 
-        FormState formState;
         private void button1_Click(object sender, EventArgs e)
         {
             // Process.Start("http://192.168.96.175:3000/users/sign_in");
 
             Activity act = Activity.GetInstance();
+            // act.Save();
 
-            act.Name = DateTime.Now.ToString();
-            act.Save();
+            label1.Text = act.BreakLength.ToString();
 
-            formState = new FormState(this);
-            formState.Maximize();
+            // formState = new FormState(this);
+            //formState.Maximize();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            label1.Text = Activity.GetInstance().Name;
-            formState.Restore();
+            FormState.GetInstance().Restore();
+        }
+
+        private void KeyRecord_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

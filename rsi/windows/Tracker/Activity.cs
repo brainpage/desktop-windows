@@ -13,9 +13,9 @@ namespace Tracker
     [Serializable]
     class Activity
     {
-        public int Duration { get; set; }
-        public string Name { get; set; }
         public string IpAddress { get; private set; }
+        public int WorkLength { get; set; }
+        public int BreakLength { get; set; }
 
         private static Activity actInstance = null;
         public static Activity GetInstance()
@@ -23,7 +23,7 @@ namespace Tracker
             if (actInstance == null)
             {
                 actInstance = Read();
-                actInstance.IpAddress = GetPublicIP();
+                //actInstance.IpAddress = GetPublicIP();
             }
             return actInstance;
         }
@@ -34,7 +34,6 @@ namespace Tracker
             {
                 using (FileStream mStream = File.Open(GetDataFile(), FileMode.Create))
                 {
-
                     var crypt = new TripleDESCryptoServiceProvider();
 
                     crypt.IV = iv;
@@ -51,7 +50,6 @@ namespace Tracker
                         mStream.Close();
                     }
                 }
-
             }
             catch (Exception e)
             {
@@ -65,6 +63,15 @@ namespace Tracker
         {
         }
 
+        private void SetDefaultValues()
+        {
+            if (this.WorkLength == 0)
+                this.WorkLength = 5 * 1000; //60 * 60 * 1000;
+
+            if (this.BreakLength == 0)
+                this.BreakLength = 30 * 1000;// 6 * 60 * 1000;
+        }
+
         private static byte[] key = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
         11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
         private static byte[] iv = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -74,10 +81,8 @@ namespace Tracker
             Activity activity = new Activity();
             try
             {
-
                 using (FileStream cStream = File.Open(GetDataFile(), FileMode.Open, FileAccess.Read))
                 {
-
                     var crypt = new TripleDESCryptoServiceProvider();
 
                     crypt.IV = iv;
@@ -92,16 +97,14 @@ namespace Tracker
 
                         mStream.Close();
                         cStream.Close();
-
                     }
                 }
-
             }
             catch (Exception e)
             {
                 Console.Write(e.StackTrace);
-
             }
+            activity.SetDefaultValues();
             return activity;
         }
 

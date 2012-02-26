@@ -10,7 +10,6 @@ namespace Tracker
     class ActivitySocket
     {
         private const string socketUrl = "ws://192.168.96.175:8080/";
-
         private static ActivitySocket socketInstance = null;
 
         public static ActivitySocket GetInstance()

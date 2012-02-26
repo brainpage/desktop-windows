@@ -17,6 +17,9 @@ namespace Tracker
             SetWindowPos(IntPtr hwnd, IntPtr hwndInsertAfter,
                          int X, int Y, int width, int height, uint flags);
 
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
         private const int SM_CXSCREEN = 0;
         private const int SM_CYSCREEN = 1;
         private static IntPtr HWND_TOP = IntPtr.Zero;
@@ -37,30 +40,54 @@ namespace Tracker
             SetWindowPos(hwnd, HWND_TOP, 0, 0, ScreenX, ScreenY, SWP_SHOWWINDOW);
         }
 
+        private static FormState stateInstance = null;
+        public static FormState GetInstance()
+        {
+            if (stateInstance == null)
+            {
+                throw new Exception("Call SetForm before trying to get instance");
+            }
+            return stateInstance;
+        }
+
+        public static void SetForm(Form form)
+        {
+            if (stateInstance == null)
+            {
+                stateInstance = new FormState(form);
+            }
+        }
+
         private FormWindowState winState;
         private FormBorderStyle brdStyle;
         private bool topMost;
 
         private Form targetForm;
         private Timer timerFade;
+        private Timer keepTopTimer;
 
-        public FormState(Form form)
+        private FormState(Form form)
         {
             targetForm = form;
             timerFade = new Timer();
             timerFade.Interval = 50;
 
             timerFade.Tick += new System.EventHandler(this.timerFade_Tick);
+
+            keepTopTimer = new Timer();
+            keepTopTimer.Interval = 100;
+            keepTopTimer.Tick += new System.EventHandler(this.keepTopTimer_Tick);
         }
 
-
-        private bool IsMaximized = false;
+        public bool IsMaximized = false;
 
         public void Maximize()
         {
             if (!IsMaximized)
             {
                 timerFade.Enabled = true;
+                keepTopTimer.Enabled = true;
+
                 targetForm.Opacity = 0.3;
 
                 IsMaximized = true;
@@ -70,6 +97,9 @@ namespace Tracker
                 targetForm.FormBorderStyle = FormBorderStyle.None;
                 targetForm.TopMost = true;
                 SetWinFullScreen(targetForm.Handle);
+
+                ActivityTracker.GetInstance().workTimer.Enabled = false;
+                ActivityTracker.GetInstance().breakTimer.Enabled = true;
             }
         }
 
@@ -87,6 +117,10 @@ namespace Tracker
             targetForm.TopMost = topMost;
 
             IsMaximized = false;
+            keepTopTimer.Enabled = false;
+
+            ActivityTracker.GetInstance().workTimer.Enabled = true;
+            ActivityTracker.GetInstance().breakTimer.Enabled = false;
         }
 
         private int mState = 1;
@@ -100,6 +134,11 @@ namespace Tracker
                 mState = 0;
             }
             targetForm.Opacity = op;
+        }
+
+        private void keepTopTimer_Tick(object sender, EventArgs e)
+        {
+            SetForegroundWindow(targetForm.Handle);
         }
 
     }
