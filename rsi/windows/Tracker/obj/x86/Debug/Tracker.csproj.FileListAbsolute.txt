@@ -14,3 +14,12 @@ F:\apps\Tracker\Tracker\obj\x86\Debug\Tracker.exe
 F:\apps\Tracker\Tracker\obj\x86\Debug\Tracker.pdb
 F:\apps\Tracker111\Tracker\obj\x86\Debug\Tracker.exe
 F:\apps\Tracker111\Tracker\obj\x86\Debug\Tracker.pdb
+F:\apps\rsi\windows\Tracker\obj\x86\Debug\Tracker.exe
+F:\apps\rsi\windows\Tracker\obj\x86\Debug\Tracker.pdb
+F:\apps\rsi\windows\Tracker\bin\Debug\Tracker.exe
+F:\apps\rsi\windows\Tracker\bin\Debug\Tracker.pdb
+F:\apps\rsi\windows\Tracker\obj\x86\Debug\ResolveAssemblyReference.cache
+F:\apps\rsi\windows\Tracker\obj\x86\Debug\Tracker.KeyRecord.resources
+F:\apps\rsi\windows\Tracker\obj\x86\Debug\Tracker.Properties.Resources.resources
+F:\apps\rsi\windows\Tracker\obj\x86\Debug\GenerateResource.read.1.tlog
+F:\apps\rsi\windows\Tracker\obj\x86\Debug\GenerateResource.write.1.tlog

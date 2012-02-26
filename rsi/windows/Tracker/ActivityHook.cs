@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Tracker
 {
-    public class UserActivityHook
+    public class ActivityHook
     {
         #region Windows structure definitions
 
@@ -116,17 +116,17 @@ namespace Tracker
 
         #endregion
 
-        public UserActivityHook()
+        public ActivityHook()
         {
             Start();
         }
 
-        public UserActivityHook(bool InstallMouseHook, bool InstallKeyboardHook)
+        public ActivityHook(bool InstallMouseHook, bool InstallKeyboardHook)
         {
             Start(InstallMouseHook, InstallKeyboardHook);
         }
 
-        ~UserActivityHook()
+        ~ActivityHook()
         {
             Stop(true, true, false);
         }

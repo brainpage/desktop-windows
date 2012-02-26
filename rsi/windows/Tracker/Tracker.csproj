@@ -55,8 +55,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UserActivity.cs" />
-    <Compile Include="UserActivityHook.cs" />
+    <Compile Include="ActivitySocket.cs" />
+    <Compile Include="ActivityTracker.cs" />
+    <Compile Include="FormState.cs" />
+    <Compile Include="Activity.cs" />
+    <Compile Include="ActivityHook.cs" />
     <Compile Include="KeyRecord.cs">
       <SubType>Form</SubType>
     </Compile>
