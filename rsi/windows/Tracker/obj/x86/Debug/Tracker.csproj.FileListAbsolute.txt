@@ -1,0 +1,16 @@
+F:\tracker\Tracker\Tracker\obj\x86\Debug\ResolveAssemblyReference.cache
+F:\tracker\Tracker\Tracker\obj\x86\Debug\Tracker.KeyRecord.resources
+F:\tracker\Tracker\Tracker\obj\x86\Debug\Tracker.Properties.Resources.resources
+F:\tracker\Tracker\Tracker\obj\x86\Debug\GenerateResource.read.1.tlog
+F:\tracker\Tracker\Tracker\obj\x86\Debug\GenerateResource.write.1.tlog
+F:\tracker\Tracker\Tracker\bin\Debug\Tracker.exe
+F:\tracker\Tracker\Tracker\bin\Debug\Tracker.pdb
+F:\tracker\Tracker\Tracker\obj\x86\Debug\Tracker.exe
+F:\tracker\Tracker\Tracker\obj\x86\Debug\Tracker.pdb
+F:\tracker\Tracker\Tracker\bin\Debug\WebSocket4Net.dll
+F:\tracker\Tracker\Tracker\bin\Debug\Newtonsoft.Json.dll
+F:\tracker\Tracker\Tracker\bin\Debug\SuperSocket.ClientEngine.dll
+F:\apps\Tracker\Tracker\obj\x86\Debug\Tracker.exe
+F:\apps\Tracker\Tracker\obj\x86\Debug\Tracker.pdb
+F:\apps\Tracker111\Tracker\obj\x86\Debug\Tracker.exe
+F:\apps\Tracker111\Tracker\obj\x86\Debug\Tracker.pdb
