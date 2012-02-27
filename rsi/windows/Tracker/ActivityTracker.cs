@@ -43,6 +43,9 @@ namespace Tracker
         public Timer workTimer;
         public Timer breakTimer;
 
+        private Stopwatch noActionTime;
+        private int bufferTime = 60 * 1000;
+
         private ActivityTracker()
         {
             hook = new ActivityHook();
@@ -59,16 +62,60 @@ namespace Tracker
             breakTimer = new Timer();
             breakTimer.Interval = Activity.GetInstance().BreakLength;
             breakTimer.Tick += new System.EventHandler(this.breakTimer_Tick);
+
+            noActionTime = new Stopwatch();
+            noActionTime.Start();
+        }
+
+        private bool Resting()
+        {
+            return noActionTime.ElapsedMilliseconds > bufferTime;
         }
 
         private void workTimer_Tick(object sender, EventArgs e)
         {
-            FormState.GetInstance().Maximize();
+            if (Resting())
+            {
+                workTimer.Enabled = false;
+            }
+            else
+            {
+                FormState.GetInstance().Maximize();
+            }
         }
 
         private void breakTimer_Tick(object sender, EventArgs e)
         {
+            Restore();
+        }
+
+        private void Restore()
+        {
             FormState.GetInstance().Restore();
+            noActionTime.Restart();
+        }
+
+        private void ActionHappened()
+        {
+            if (breakTimer.Enabled)
+                return;
+
+            if (workTimer.Enabled)
+            {
+                noActionTime.Restart();
+            }
+            else if (Resting())
+            {
+                if (noActionTime.ElapsedMilliseconds > breakTimer.Interval)
+                {
+                    Restore();
+                }
+                else
+                {
+                    breakTimer.Interval -= (int)noActionTime.ElapsedMilliseconds;
+                    FormState.GetInstance().Maximize();
+                }
+            }
         }
 
         private void setTextje()
@@ -91,23 +138,27 @@ namespace Tracker
             return pid;
         }
 
-        public void MyKeyDown(object sender, KeyEventArgs e)
+        private void MyKeyDown(object sender, KeyEventArgs e)
         {
             Console.Write(e.KeyData.ToString());
+            ActionHappened();
         }
 
-        public void MyKeyPress(object sender, KeyPressEventArgs e)
+        private void MyKeyPress(object sender, KeyPressEventArgs e)
         {
             Console.Write(e.KeyChar.ToString());
+            ActionHappened();
         }
 
-        public void MyKeyUp(object sender, KeyEventArgs e)
+        private void MyKeyUp(object sender, KeyEventArgs e)
         {
             Console.Write(e.KeyData.ToString());
+            ActionHappened();
         }
 
         private void choose_OnMouseActivity(object sender, MouseEventArgs e)
         {
+            ActionHappened();
             if (e.Clicks > 0)
             {
                 if ((MouseButtons)(e.Button) == MouseButtons.Left)

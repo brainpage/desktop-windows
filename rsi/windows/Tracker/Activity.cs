@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection;
 using System.Net;
+using System.Windows.Forms;
 
 namespace Tracker
 {
@@ -14,6 +15,9 @@ namespace Tracker
     class Activity
     {
         public string IpAddress { get; private set; }
+
+        public string SensorToken { get; private set; }
+        public string AuthToken { get; private set; }
         public int WorkLength { get; set; }
         public int BreakLength { get; set; }
 
@@ -23,7 +27,7 @@ namespace Tracker
             if (actInstance == null)
             {
                 actInstance = Read();
-                //actInstance.IpAddress = GetPublicIP();
+                actInstance.SetValues();
             }
             return actInstance;
         }
@@ -62,14 +66,50 @@ namespace Tracker
         private Activity()
         {
         }
-
-        private void SetDefaultValues()
+        
+        private void SetValues()
         {
             if (this.WorkLength == 0)
-                this.WorkLength = 5 * 1000; //60 * 60 * 1000;
+                this.WorkLength = 180 * 1000; //60 * 60 * 1000;
 
             if (this.BreakLength == 0)
-                this.BreakLength = 30 * 1000;// 6 * 60 * 1000;
+                this.BreakLength = 120 * 1000;// 6 * 60 * 1000;
+
+            if (this.SensorToken == null)
+            {
+                this.SensorToken = Guid.NewGuid().ToString().Substring(24);
+                this.AuthToken = Sha1Encrypt(this.SensorToken);
+            }
+
+            this.Save();
+            //private Timer ipTimer;
+            //ipTimer = new Timer();
+            //ipTimer.Interval = 10 * 1000;
+            //ipTimer.Tick += new System.EventHandler(this.ipTimer_Tick);
+            //ipTimer.Enabled = true;
+        }
+
+        // private void ipTimer_Tick(object sender, EventArgs e)
+        // {
+        //     ipTimer.Enabled = false;
+        //     this.IpAddress = GetPublicIP();
+        //     this.Save();
+        // }
+
+        private string Sha1Encrypt(string plain)
+        {
+            string key = plain + AppConfig.SecretKey;
+
+            byte[] bytes = System.Text.Encoding.Default.GetBytes(key);
+            SHA1 sha = new SHA1CryptoServiceProvider();
+
+            bytes = sha.ComputeHash(bytes);
+            string str = "";
+            foreach (byte i in bytes)
+            {
+                str += i.ToString("x2");
+            }
+            return str;
         }
 
         private static byte[] key = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -104,7 +144,6 @@ namespace Tracker
             {
                 Console.Write(e.StackTrace);
             }
-            activity.SetDefaultValues();
             return activity;
         }
 

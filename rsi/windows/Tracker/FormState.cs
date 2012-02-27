@@ -62,12 +62,15 @@ namespace Tracker
         private FormBorderStyle brdStyle;
         private bool topMost;
 
+        private ActivityTracker tracker;
         private Form targetForm;
         private Timer timerFade;
         private Timer keepTopTimer;
 
         private FormState(Form form)
         {
+            tracker = ActivityTracker.GetInstance();
+
             targetForm = form;
             timerFade = new Timer();
             timerFade.Interval = 50;
@@ -98,8 +101,8 @@ namespace Tracker
                 targetForm.TopMost = true;
                 SetWinFullScreen(targetForm.Handle);
 
-                ActivityTracker.GetInstance().workTimer.Enabled = false;
-                ActivityTracker.GetInstance().breakTimer.Enabled = true;
+                tracker.workTimer.Enabled = false;
+                tracker.breakTimer.Enabled = true;
             }
         }
 
@@ -119,8 +122,9 @@ namespace Tracker
             IsMaximized = false;
             keepTopTimer.Enabled = false;
 
-            ActivityTracker.GetInstance().workTimer.Enabled = true;
-            ActivityTracker.GetInstance().breakTimer.Enabled = false;
+            tracker.workTimer.Enabled = true;
+            tracker.breakTimer.Interval = Activity.GetInstance().BreakLength;
+            tracker.breakTimer.Enabled = false;
         }
 
         private int mState = 1;

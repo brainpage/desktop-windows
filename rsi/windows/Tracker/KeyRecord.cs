@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace Tracker
 {
     public partial class KeyRecord : Form
     {
+        private Activity activity;
         public KeyRecord()
         {
             InitializeComponent();
@@ -12,7 +15,11 @@ namespace Tracker
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            Activity.GetInstance();
+            // this.MaximizeBox = false;
+            // this.MinimizeBox = false;
+            // this.WindowState = FormWindowState.Minimized;
+
+            activity = Activity.GetInstance();
             FormState.SetForm(this);
 
             ActivityTracker.Start();
@@ -22,10 +29,12 @@ namespace Tracker
         {
             // Process.Start("http://192.168.96.175:3000/users/sign_in");
 
-            Activity act = Activity.GetInstance();
+            // Activity act = Activity.GetInstance();
             // act.Save();
 
-            label1.Text = act.BreakLength.ToString();
+
+            Console.Write(Guid.NewGuid().ToString());
+
 
             // formState = new FormState(this);
             //formState.Maximize();
@@ -36,9 +45,14 @@ namespace Tracker
             FormState.GetInstance().Restore();
         }
 
-        private void KeyRecord_Load(object sender, EventArgs e)
+        private void menuItemSetting_Click(object sender, EventArgs e)
         {
+            Process.Start(AppConfig.ServerUrl + "?sensor_token=" + activity.SensorToken + "&auth_token=" + activity.AuthToken);
+        }
 
+        private void menuItemExit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
