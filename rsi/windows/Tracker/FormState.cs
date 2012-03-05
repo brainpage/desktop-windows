@@ -100,9 +100,6 @@ namespace Tracker
                 targetForm.FormBorderStyle = FormBorderStyle.None;
                 targetForm.TopMost = true;
                 SetWinFullScreen(targetForm.Handle);
-
-                tracker.workTimer.Enabled = false;
-                tracker.breakTimer.Enabled = true;
             }
         }
 
@@ -121,10 +118,6 @@ namespace Tracker
 
             IsMaximized = false;
             keepTopTimer.Enabled = false;
-
-            tracker.workTimer.Enabled = true;
-            tracker.breakTimer.Interval = Activity.GetInstance().BreakLength;
-            tracker.breakTimer.Enabled = false;
         }
 
         private int mState = 1;

@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActivityEvent.cs" />
     <Compile Include="ActivitySocket.cs" />
     <Compile Include="ActivityTracker.cs" />
     <Compile Include="AppConfig.cs" />

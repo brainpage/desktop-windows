@@ -44,6 +44,7 @@ namespace Tracker
             websocket.Open();
 
             jsonWebsocket = new JsonWebSocket(socketUrl);
+          
             jsonWebsocket.Opened += new EventHandler(json_websocket_Opened);
 
             jsonWebsocket.Open();

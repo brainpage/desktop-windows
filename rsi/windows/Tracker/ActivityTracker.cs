@@ -5,6 +5,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace Tracker
 {
@@ -40,82 +41,70 @@ namespace Tracker
 
         private ActivityHook hook;
 
-        public Timer workTimer;
-        public Timer breakTimer;
+        private Stopwatch durClock;
+        private Timer durTimer;
+        private Dictionary<string, Object> currentEvent;
 
-        private Stopwatch noActionTime;
-        private int bufferTime = 60 * 1000;
+        private double dst;  //The distance covered by the mouse
+        private int mnum; //The number of "mousemove" events
+        private int keys; //Number of key presses
+        private int msclks; //Number of mouse clicks
+        private int scrll; //Scroll "distance" of mouse wheel
+        private string app; //Identifier of currently active app
 
         private ActivityTracker()
         {
+            currentEvent = new Dictionary<string, object>();
+
             hook = new ActivityHook();
             hook.OnMouseActivity += new MouseEventHandler(choose_OnMouseActivity);
             hook.KeyDown += new KeyEventHandler(MyKeyDown);
             hook.KeyPress += new KeyPressEventHandler(MyKeyPress);
             hook.KeyUp += new KeyEventHandler(MyKeyUp);
 
-            workTimer = new Timer();
-            workTimer.Interval = Activity.GetInstance().WorkLength;
-            workTimer.Enabled = true;
-            workTimer.Tick += new System.EventHandler(this.workTimer_Tick);
+            durTimer = new Timer();
+            durTimer.Interval = AppConfig.EventInterval;
+            durTimer.Tick += new System.EventHandler(this.durTimer_Tick);
+            durTimer.Enabled = true;
 
-            breakTimer = new Timer();
-            breakTimer.Interval = Activity.GetInstance().BreakLength;
-            breakTimer.Tick += new System.EventHandler(this.breakTimer_Tick);
+            durClock = new Stopwatch();
+            durClock.Start();
 
-            noActionTime = new Stopwatch();
-            noActionTime.Start();
-        }
-
-        private bool Resting()
-        {
-            return noActionTime.ElapsedMilliseconds > bufferTime;
-        }
-
-        private void workTimer_Tick(object sender, EventArgs e)
-        {
-            if (Resting())
-            {
-                workTimer.Enabled = false;
-            }
-            else
-            {
-                FormState.GetInstance().Maximize();
-            }
-        }
-
-        private void breakTimer_Tick(object sender, EventArgs e)
-        {
-            Restore();
+            beginNewSample();
         }
 
         private void Restore()
         {
             FormState.GetInstance().Restore();
-            noActionTime.Restart();
+            durClock.Restart();
         }
 
-        private void ActionHappened()
+        private void beginNewSample()
         {
-            if (breakTimer.Enabled)
-                return;
+            currentEvent = new Dictionary<string, object>();
+            durClock.Restart();
 
-            if (workTimer.Enabled)
-            {
-                noActionTime.Restart();
-            }
-            else if (Resting())
-            {
-                if (noActionTime.ElapsedMilliseconds > breakTimer.Interval)
-                {
-                    Restore();
-                }
-                else
-                {
-                    breakTimer.Interval -= (int)noActionTime.ElapsedMilliseconds;
-                    FormState.GetInstance().Maximize();
-                }
-            }
+            dst = 0;
+            mnum = 0;
+            keys = 0;
+            msclks = 0;
+            scrll = 0;
+        }
+
+
+        private void durTimer_Tick(object sender, EventArgs e)
+        {
+            MouseMoveSave();
+
+            currentEvent.Add("dur", durClock.ElapsedMilliseconds);
+            currentEvent.Add("dst", dst);
+            currentEvent.Add("keys", keys);
+            currentEvent.Add("msclks", msclks);
+            currentEvent.Add("scrll", scrll);
+
+            ActivitySocket.GetInstance().send(JsonConvert.SerializeObject(currentEvent));
+
+            beginNewSample();
         }
 
         private void setTextje()
@@ -140,40 +129,90 @@ namespace Tracker
 
         private void MyKeyDown(object sender, KeyEventArgs e)
         {
-            Console.Write(e.KeyData.ToString());
-            ActionHappened();
+
         }
 
         private void MyKeyPress(object sender, KeyPressEventArgs e)
         {
-            Console.Write(e.KeyChar.ToString());
-            ActionHappened();
+            keys++;
         }
 
         private void MyKeyUp(object sender, KeyEventArgs e)
         {
-            Console.Write(e.KeyData.ToString());
-            ActionHappened();
+
+        }
+
+        private int mouseLastX = -1;
+        private int mouseLastY = -1;
+        private long mouseLastTime = 0;
+        private bool mouseLastSaved;
+
+        private void MouseMove(MouseEventArgs e)
+        {
+            int x = e.Location.X;
+            int y = e.Location.Y;
+
+            if (mouseLastX > 0)
+            {
+                dst += Math.Sqrt(Math.Pow(x - mouseLastX, 2) + Math.Pow(y - mouseLastY, 2));
+
+                if (durClock.ElapsedMilliseconds - mouseLastTime > 100)
+                    MouseMoveSave();
+            }
+
+            mouseLastX = x;
+            mouseLastY = y;
+            mouseLastTime = durClock.ElapsedMilliseconds;
+            mouseLastSaved = false;
+        }
+
+        private void MouseMoveSave()
+        {
+            if (!mouseLastSaved)
+            {
+                currentEvent.Add(mouseLastTime.ToString(), xyStr(mouseLastX, mouseLastY));
+                mouseLastSaved = true;
+            }
+        }
+
+        private void MouseClick(MouseEventArgs e)
+        {
+            string key = "";
+            switch (e.Button)
+            {
+                case MouseButtons.Left:
+                    key = "L";
+                    break;
+                case MouseButtons.Right:
+                    key = "R";
+                    break;
+                default:
+                    key = "M";
+                    break;
+            }
+            msclks++;
+            currentEvent.Add(durClock.ElapsedMilliseconds.ToString() + "-" + key, xyStr(e.Location.X, e.Location.Y));
+        }
+
+        private string xyStr(int x, int y)
+        {
+            return x.ToString() + "," + y.ToString();
         }
 
         private void choose_OnMouseActivity(object sender, MouseEventArgs e)
         {
-            ActionHappened();
             if (e.Clicks > 0)
             {
-                if ((MouseButtons)(e.Button) == MouseButtons.Left)
-                {
-                    Console.Write(e.Location.ToString());
-                }
-                if ((MouseButtons)(e.Button) == MouseButtons.Right)
-                {
-                    Console.Write(e.Location.ToString());
-                }
+                msclks++;
+                MouseClick(e);
             }
-            //throw new Exception("The method or operation is not implemented.");
+            MouseMove(e);
+
+            scrll += Math.Abs(e.Delta);
+
             try
             {
-                setTextje();
+                // setTextje();
             }
             catch (Exception err)
             {

@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection;
 using System.Net;
 using System.Windows.Forms;
+using System.Net.NetworkInformation;
 
 namespace Tracker
 {
@@ -16,10 +17,9 @@ namespace Tracker
     {
         public string IpAddress { get; private set; }
 
-        public string SensorToken { get; private set; }
+        public string SensorUUID { get; private set; }
         public string AuthToken { get; private set; }
-        public int WorkLength { get; set; }
-        public int BreakLength { get; set; }
+        public List<Dictionary<string, Object>> EventQueue { get; private set; }
 
         private static Activity actInstance = null;
         public static Activity GetInstance()
@@ -32,6 +32,7 @@ namespace Tracker
             return actInstance;
         }
 
+        // Save encrypted data in local file.
         public bool Save()
         {
             try
@@ -66,35 +67,41 @@ namespace Tracker
         private Activity()
         {
         }
-        
+
+        // Initilize values
         private void SetValues()
         {
-            if (this.WorkLength == 0)
-                this.WorkLength = 180 * 1000; //60 * 60 * 1000;
+            if (this.SensorUUID == null)
+                this.SensorUUID = Sha1Encrypt(GetMacAddress());
 
-            if (this.BreakLength == 0)
-                this.BreakLength = 120 * 1000;// 6 * 60 * 1000;
+            if (this.AuthToken == null)
+                this.AuthToken = Sha1Encrypt(Guid.NewGuid().ToString());
 
-            if (this.SensorToken == null)
-            {
-                this.SensorToken = Guid.NewGuid().ToString().Substring(24);
-                this.AuthToken = Sha1Encrypt(this.SensorToken);
-            }
+            if (this.EventQueue == null)
+                this.EventQueue = new List<Dictionary<string, object>>();
 
             this.Save();
-            //private Timer ipTimer;
-            //ipTimer = new Timer();
-            //ipTimer.Interval = 10 * 1000;
-            //ipTimer.Tick += new System.EventHandler(this.ipTimer_Tick);
-            //ipTimer.Enabled = true;
         }
 
-        // private void ipTimer_Tick(object sender, EventArgs e)
-        // {
-        //     ipTimer.Enabled = false;
-        //     this.IpAddress = GetPublicIP();
-        //     this.Save();
-        // }
+        private string GetMacAddress()
+        {
+            string macAddresses = "";
+
+            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.OperationalStatus == OperationalStatus.Up)
+                {
+                    macAddresses += nic.GetPhysicalAddress().ToString();
+                    break;
+                }
+            }
+
+            if ("".Equals(macAddresses))
+                macAddresses = Guid.NewGuid().ToString();
+
+            return macAddresses;
+        }
+
 
         private string Sha1Encrypt(string plain)
         {

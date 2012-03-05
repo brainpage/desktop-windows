@@ -20,12 +20,16 @@ namespace Tracker
             // this.WindowState = FormWindowState.Minimized;
 
             activity = Activity.GetInstance();
+            ActivitySocket.GetInstance();
             FormState.SetForm(this);
+
+            Console.WriteLine(activity.AuthToken);
+            Console.WriteLine(activity.SensorUUID.Length);
 
             ActivityTracker.Start();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+         private void button1_Click(object sender, EventArgs e)
         {
             // Process.Start("http://192.168.96.175:3000/users/sign_in");
 
@@ -47,12 +51,14 @@ namespace Tracker
 
         private void menuItemSetting_Click(object sender, EventArgs e)
         {
-            Process.Start(AppConfig.ServerUrl + "?sensor_token=" + activity.SensorToken + "&auth_token=" + activity.AuthToken);
+            Process.Start(AppConfig.ServerUrl + "?sensor_token=" + activity.SensorUUID + "&auth_token=" + activity.AuthToken);
         }
 
         private void menuItemExit_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
+
+        
     }
 }
