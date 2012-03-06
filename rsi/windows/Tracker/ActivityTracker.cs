@@ -94,15 +94,20 @@ namespace Tracker
 
         private void durTimer_Tick(object sender, EventArgs e)
         {
+            FinishSample();
+        }
+
+        private void FinishSample()
+        {
             MouseMoveSave();
 
             currentEvent.Add("dur", durClock.ElapsedMilliseconds);
-            currentEvent.Add("dst", dst);
+            currentEvent.Add("dst", (long)dst);
             currentEvent.Add("keys", keys);
             currentEvent.Add("msclks", msclks);
             currentEvent.Add("scrll", scrll);
 
-            ActivitySocket.GetInstance().send(JsonConvert.SerializeObject(currentEvent));
+            SensocolSocket.GetInstance().SendEvent("update", currentEvent);
 
             beginNewSample();
         }
@@ -116,7 +121,7 @@ namespace Tracker
             string app = Process.GetProcessById(GetWindowProcessID(hwnd)).MainWindowTitle;
             string appExeName = appExePath.Substring(appExePath.LastIndexOf(@"\") + 1);
 
-            ActivitySocket.GetInstance().send(appProcessName + " | " + appExePath + " | " + appExeName + " | " + app);
+           // SensocolSocket.GetInstance().Send(appProcessName + " | " + appExePath + " | " + appExeName + " | " + app);
             Console.Write(appProcessName + " | " + appExePath + " | " + appExeName + " | " + app);
         }
 

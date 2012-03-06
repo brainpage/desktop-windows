@@ -20,16 +20,19 @@ namespace Tracker
             // this.WindowState = FormWindowState.Minimized;
 
             activity = Activity.GetInstance();
-            ActivitySocket.GetInstance();
+            SensocolSocket.GetInstance();
             FormState.SetForm(this);
 
             Console.WriteLine(activity.AuthToken);
             Console.WriteLine(activity.SensorUUID.Length);
 
             ActivityTracker.Start();
+
+            Application.ApplicationExit += new EventHandler(this.application_Exit);
+
         }
 
-         private void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
             // Process.Start("http://192.168.96.175:3000/users/sign_in");
 
@@ -59,6 +62,10 @@ namespace Tracker
             Application.Exit();
         }
 
-        
+        private void application_Exit(object sender, EventArgs e)
+        {
+            SensocolSocket.GetInstance().CacheQueueToFile();
+        }
+
     }
 }
