@@ -5,7 +5,7 @@ using System.Text;
 using WebSocket4Net;
 using SuperSocket.ClientEngine;
 using Newtonsoft.Json;
-using System.Windows.Forms;
+using System.Timers;
 
 namespace Tracker
 {
@@ -29,6 +29,7 @@ namespace Tracker
         private List<Dictionary<string, object>> eventQueue;
         private Timer sendTimer;
         private Timer reconnectTimer;
+        private int ackCounter;
 
         private SensocolSocket()
         {
@@ -36,12 +37,12 @@ namespace Tracker
 
             sendTimer = new Timer();
             sendTimer.Interval = 2000;
-            sendTimer.Tick += new System.EventHandler(this.sendTimer_Tick);
+            sendTimer.Elapsed += new ElapsedEventHandler(this.sendTimer_Tick);
             sendTimer.Start();
 
             reconnectTimer = new Timer();
             reconnectTimer.Interval = AppConfig.ReconnectMinInterval;
-            reconnectTimer.Tick += new System.EventHandler(this.reconnectTimer_Tick);
+            reconnectTimer.Elapsed += new ElapsedEventHandler(this.reconnectTimer_Tick);
             reconnectTimer.Start();
 
             state = DISCONNECTED;
@@ -49,6 +50,8 @@ namespace Tracker
             eventQueue = (List<Dictionary<string, object>>)Utils.ReadFile("events");
             if (eventQueue == null)
                 eventQueue = new List<Dictionary<string, object>>();
+
+            ackCounter = 0;
         }
 
         private void OpenNewSocket()
@@ -61,15 +64,15 @@ namespace Tracker
             websocket.Open();
         }
 
-        private void sendTimer_Tick(object sender, EventArgs e)
+        private void sendTimer_Tick(object sender, ElapsedEventArgs e)
         {
             SendQueue();
         }
 
-        private void reconnectTimer_Tick(object sender, EventArgs e)
+        private void reconnectTimer_Tick(object sender, ElapsedEventArgs e)
         {
-            Console.WriteLine("tick called");
             OpenNewSocket();
+
             //Extend reconnect interval
             if (reconnectTimer.Interval < AppConfig.ReconnectMaxInterval)
                 reconnectTimer.Interval *= 2;
@@ -78,10 +81,12 @@ namespace Tracker
         private void Reconnect()
         {
             state = DISCONNECTED;
-            OpenNewSocket();
 
-            reconnectTimer.Interval = AppConfig.ReconnectMinInterval;
-            reconnectTimer.Start();
+            if (!reconnectTimer.Enabled)
+            {
+                reconnectTimer.Interval = AppConfig.ReconnectMinInterval;
+                reconnectTimer.Enabled = true;
+            }
         }
 
         public void SendEvent(string eventName, Dictionary<string, object> data)
@@ -99,6 +104,17 @@ namespace Tracker
             eventQueue.Add(eventData);
             if (eventQueue.Count > AppConfig.MaxQueueCount)
                 eventQueue.RemoveAt(0);
+        }
+
+        public void RequestLoginTokenFor(string url)
+        {
+            Dictionary<string, object> data = new Dictionary<string,object>();
+            data.Add("action", "sys_cmd");
+            data.Add("command", "user_login_token");
+            data.Add("ack",GetAck());
+            data.Add("url", url);
+
+            this.Send(data);
         }
 
         public void CacheQueueToFile()
@@ -158,6 +174,11 @@ namespace Tracker
             Reconnect();
         }
 
+        private void websocket_Error(object sender, ErrorEventArgs e)
+        {
+            Reconnect();
+        }
+
         private void websocket_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
             try
@@ -168,14 +189,14 @@ namespace Tracker
                     case CONNECTED:
                         if (response["action"] == "sys_cmd_re" && response["command"] == "user_login_token")
                         {
-                            Activity.GetInstance().SetLoginToken(response["url"]);
+                            Activity.GetInstance().SetLoginUrl(response["url"]);
                         }
                         break;
                     case DISCONNECTED:
                         if (response["action"] == "connack" && response["status"] == "ok")
                         {
                             state = CONNECTED;
-                            reconnectTimer.Stop();
+                            reconnectTimer.Enabled = false;
                         }
                         break;
                     default:
@@ -185,14 +206,6 @@ namespace Tracker
             catch (Exception ee)
             {
                 Console.WriteLine(ee.Message);
-            }
-        }
-
-        private void websocket_Error(object sender, ErrorEventArgs e)
-        {
-            if (state == CONNECTED)
-            {
-                Reconnect();
             }
         }
 
@@ -208,6 +221,11 @@ namespace Tracker
             connect.Add("sensor", sensor);
 
             this.Send(connect);
+        }
+
+        private int GetAck()
+        {
+            return ackCounter++;
         }
     }
 }

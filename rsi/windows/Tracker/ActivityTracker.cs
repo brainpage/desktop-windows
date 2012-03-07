@@ -23,6 +23,17 @@ namespace Tracker
         [DllImport("user32.dll")]
         private static extern int ShowWindow(int hwnd, int command);
 
+        delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
+        [DllImport("user32.dll")]
+        static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+
+        [DllImport("user32.dll")]
+        static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+        private const uint WINEVENT_OUTOFCONTEXT = 0;
+        private const uint EVENT_SYSTEM_FOREGROUND = 3;
+
         private static ActivityTracker trackerInstance = null;
 
         public static void Start()
@@ -51,6 +62,8 @@ namespace Tracker
         private int msclks; //Number of mouse clicks
         private int scrll; //Scroll "distance" of mouse wheel
         private string app; //Identifier of currently active app
+        private IntPtr m_hhook;
+        private WinEventDelegate dele;
 
         private ActivityTracker()
         {
@@ -62,6 +75,9 @@ namespace Tracker
             hook.KeyPress += new KeyPressEventHandler(MyKeyPress);
             hook.KeyUp += new KeyEventHandler(MyKeyUp);
 
+            dele = new WinEventDelegate(ActiveAppChanged);
+            m_hhook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
+
             durTimer = new Timer();
             durTimer.Interval = AppConfig.EventInterval;
             durTimer.Tick += new System.EventHandler(this.durTimer_Tick);
@@ -72,6 +88,8 @@ namespace Tracker
 
             beginNewSample();
         }
+
+
 
         private void Restore()
         {
@@ -102,6 +120,8 @@ namespace Tracker
             MouseMoveSave();
 
             currentEvent.Add("dur", durClock.ElapsedMilliseconds);
+            currentEvent.Add("mnum", mnum);
+            currentEvent.Add("app", app);
             currentEvent.Add("dst", (long)dst);
             currentEvent.Add("keys", keys);
             currentEvent.Add("msclks", msclks);
@@ -112,17 +132,35 @@ namespace Tracker
             beginNewSample();
         }
 
-        private void setTextje()
+        private void ActiveAppChanged(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            Int32 hwnd = 0;
-            hwnd = GetForegroundWindow();
-            string appProcessName = Process.GetProcessById(GetWindowProcessID(hwnd)).ProcessName;
-            string appExePath = Process.GetProcessById(GetWindowProcessID(hwnd)).MainModule.FileName;
-            string app = Process.GetProcessById(GetWindowProcessID(hwnd)).MainWindowTitle;
-            string appExeName = appExePath.Substring(appExePath.LastIndexOf(@"\") + 1);
+            if (eventType == EVENT_SYSTEM_FOREGROUND)
+            {
+                string current = GetActiveApp();
+                if (current != null)
+                {
+                    FinishSample();
+                    app = current;
+                }
+            }
 
-           // SensocolSocket.GetInstance().Send(appProcessName + " | " + appExePath + " | " + appExeName + " | " + app);
-            Console.Write(appProcessName + " | " + appExePath + " | " + appExeName + " | " + app);
+        }
+
+        private string GetActiveApp()
+        {
+            try
+            {
+                Int32 hwnd = 0;
+                hwnd = GetForegroundWindow();
+                return Process.GetProcessById(GetWindowProcessID(hwnd)).ProcessName;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+            //string appExePath = Process.GetProcessById(GetWindowProcessID(hwnd)).MainModule.FileName;
+            //string app = Process.GetProcessById(GetWindowProcessID(hwnd)).MainWindowTitle;
+            //string appExeName = appExePath.Substring(appExePath.LastIndexOf(@"\") + 1);
         }
 
         private Int32 GetWindowProcessID(Int32 hwnd)
@@ -169,6 +207,8 @@ namespace Tracker
             mouseLastY = y;
             mouseLastTime = durClock.ElapsedMilliseconds;
             mouseLastSaved = false;
+
+            mnum++;
         }
 
         private void MouseMoveSave()
@@ -224,5 +264,11 @@ namespace Tracker
                 Console.Write(err.Message);
             }
         }
+
+        ~ActivityTracker()
+        {
+            UnhookWinEvent(m_hhook);
+        }
+
     }
 }

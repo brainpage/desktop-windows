@@ -40,7 +40,7 @@ namespace Tracker
             // act.Save();
 
 
-            Console.Write(Guid.NewGuid().ToString());
+            // Console.Write(Guid.NewGuid().ToString());
 
 
             // formState = new FormState(this);
@@ -49,12 +49,17 @@ namespace Tracker
 
         private void button2_Click(object sender, EventArgs e)
         {
-            FormState.GetInstance().Restore();
+            // FormState.GetInstance().Restore();
         }
 
         private void menuItemSetting_Click(object sender, EventArgs e)
         {
-            Process.Start(AppConfig.ServerUrl + "?sensor_token=" + activity.SensorUUID + "&auth_token=" + activity.AuthToken);
+            string url = activity.LoginUrl;
+            if (url == null || url.Equals(""))
+                url = AppConfig.ServerUrl + "?sensor_uuid=" + activity.SensorUUID;
+            Process.Start(url);
+
+            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ServerUrl);
         }
 
         private void menuItemExit_Click(object sender, EventArgs e)

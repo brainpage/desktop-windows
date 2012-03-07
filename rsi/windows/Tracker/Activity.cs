@@ -12,7 +12,7 @@ namespace Tracker
 
         public string SensorUUID { get; private set; }
         public string AuthToken { get; private set; }
-        public string LoginToken { get; private set; }
+        public string LoginUrl { get; private set; }
 
         private static Activity actInstance = null;
         public static Activity GetInstance()
@@ -33,9 +33,9 @@ namespace Tracker
             Utils.WriteFile("data", this);
         }
 
-        public void SetLoginToken(string token)
+        public void SetLoginUrl(string token)
         {
-            this.LoginToken = token;
+            this.LoginUrl = token;
             this.Save();
         }
 
