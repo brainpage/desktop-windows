@@ -50,7 +50,7 @@ namespace Tracker
             return stateInstance;
         }
 
-        public static void SetForm(Form form)
+        public static void SetForm(KeyRecord form)
         {
             if (stateInstance == null)
             {
@@ -63,11 +63,11 @@ namespace Tracker
         private bool topMost;
 
         private ActivityTracker tracker;
-        private Form targetForm;
+        private KeyRecord targetForm;
         private Timer timerFade;
         private Timer keepTopTimer;
 
-        private FormState(Form form)
+        private FormState(KeyRecord form)
         {
             tracker = ActivityTracker.GetInstance();
 
@@ -118,6 +118,11 @@ namespace Tracker
 
             IsMaximized = false;
             keepTopTimer.Enabled = false;
+        }
+
+        public void PopupNotification(int warnTime)
+        {
+            targetForm.PopupNotification(warnTime);
         }
 
         private int mState = 1;

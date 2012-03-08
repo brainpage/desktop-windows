@@ -191,6 +191,12 @@ namespace Tracker
                         {
                             Activity.GetInstance().SetLoginUrl(response["url"]);
                         }
+                        if (response["action"] == "command" && response["command"] == "rsi_alert")
+                        {
+                            int restTime = Int16.Parse( response["rest_time"]);
+                            int warnTime = Int16.Parse(response["warn_time"]);
+                            FormState.GetInstance().PopupNotification(warnTime);
+                        }
                         break;
                     case DISCONNECTED:
                         if (response["action"] == "connack" && response["status"] == "ok")
