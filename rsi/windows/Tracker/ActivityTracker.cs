@@ -89,14 +89,6 @@ namespace Tracker
             beginNewSample();
         }
 
-
-
-        private void Restore()
-        {
-            FormState.GetInstance().Restore();
-            durClock.Restart();
-        }
-
         private void beginNewSample()
         {
             currentEvent = new Dictionary<string, object>();
@@ -108,7 +100,6 @@ namespace Tracker
             msclks = 0;
             scrll = 0;
         }
-
 
         private void durTimer_Tick(object sender, EventArgs e)
         {
@@ -143,7 +134,6 @@ namespace Tracker
                     app = current;
                 }
             }
-
         }
 
         private string GetActiveApp()

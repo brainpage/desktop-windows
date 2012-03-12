@@ -13,6 +13,13 @@ namespace Tracker
 {
     class Utils
     {
+        public static string FormatTime(int seconds)
+        {
+           
+            TimeSpan t = TimeSpan.FromSeconds(seconds);
+            return string.Format("{0:D2}:{1:D2}", t.Minutes, t.Seconds);
+        }
+
         public static Object ReadFile(string fileName)
         {
             Object obj = null;

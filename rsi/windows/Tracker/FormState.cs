@@ -4,42 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Timers;
+using System.Diagnostics;
 
 namespace Tracker
 {
     class FormState
     {
-        [DllImport("user32.dll", EntryPoint = "GetSystemMetrics")]
-        public static extern int GetSystemMetrics(int which);
-
-        [DllImport("user32.dll")]
-        public static extern void
-            SetWindowPos(IntPtr hwnd, IntPtr hwndInsertAfter,
-                         int X, int Y, int width, int height, uint flags);
-
-        [DllImport("user32.dll")]
-        static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        private const int SM_CXSCREEN = 0;
-        private const int SM_CYSCREEN = 1;
-        private static IntPtr HWND_TOP = IntPtr.Zero;
-        private const int SWP_SHOWWINDOW = 64; // 0×0040
-
-        public static int ScreenX
-        {
-            get { return GetSystemMetrics(SM_CXSCREEN); }
-        }
-
-        public static int ScreenY
-        {
-            get { return GetSystemMetrics(SM_CYSCREEN); }
-        }
-
-        public static void SetWinFullScreen(IntPtr hwnd)
-        {
-            SetWindowPos(hwnd, HWND_TOP, 0, 0, ScreenX, ScreenY, SWP_SHOWWINDOW);
-        }
-
         private static FormState stateInstance = null;
         public static FormState GetInstance()
         {
@@ -58,28 +29,20 @@ namespace Tracker
             }
         }
 
-        private FormWindowState winState;
-        private FormBorderStyle brdStyle;
-        private bool topMost;
-
         private ActivityTracker tracker;
         private KeyRecord targetForm;
-        private Timer timerFade;
-        private Timer keepTopTimer;
+
+        public int lockTime;
+        private int warnTime;
+        private System.Timers.Timer warnTimer;
+        private Stopwatch restTime;
 
         private FormState(KeyRecord form)
         {
             tracker = ActivityTracker.GetInstance();
 
             targetForm = form;
-            timerFade = new Timer();
-            timerFade.Interval = 50;
 
-            timerFade.Tick += new System.EventHandler(this.timerFade_Tick);
-
-            keepTopTimer = new Timer();
-            keepTopTimer.Interval = 100;
-            keepTopTimer.Tick += new System.EventHandler(this.keepTopTimer_Tick);
         }
 
         public bool IsMaximized = false;
@@ -88,60 +51,46 @@ namespace Tracker
         {
             if (!IsMaximized)
             {
-                timerFade.Enabled = true;
-                keepTopTimer.Enabled = true;
-
-                targetForm.Opacity = 0.3;
-
-                IsMaximized = true;
-                Save();
-
-                targetForm.WindowState = FormWindowState.Maximized;
-                targetForm.FormBorderStyle = FormBorderStyle.None;
-                targetForm.TopMost = true;
-                SetWinFullScreen(targetForm.Handle);
+                targetForm.Maximize();
             }
         }
 
-        public void Save()
+        public void Restore(string eventName)
         {
-            winState = targetForm.WindowState;
-            brdStyle = targetForm.FormBorderStyle;
-            topMost = targetForm.TopMost;
-        }
+            if (warnTimer != null)
+                warnTimer.Enabled = false;
 
-        public void Restore()
-        {
-            targetForm.WindowState = winState;
-            targetForm.FormBorderStyle = brdStyle;
-            targetForm.TopMost = topMost;
-
+            targetForm.Restore();
             IsMaximized = false;
-            keepTopTimer.Enabled = false;
+
+            restTime.Stop();
+
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data.Add("dur", restTime.Elapsed.Seconds);
+
+            SensocolSocket.GetInstance().SendEvent(eventName, data);
         }
 
-        public void PopupNotification(int warnTime)
+        public void BeginNotify(int warnTime, int lockTime)
         {
+            this.warnTime = warnTime;
+            this.lockTime = lockTime;
+
+            warnTimer = new System.Timers.Timer();
+            warnTimer.Interval = warnTime * 1000;
+            warnTimer.Elapsed += new ElapsedEventHandler(this.warnTimer_Elapsed);
+            warnTimer.AutoReset = false;
+            warnTimer.Start();
+
+            restTime = new Stopwatch();
+            restTime.Start();
+
             targetForm.PopupNotification(warnTime);
         }
 
-        private int mState = 1;
-        private void timerFade_Tick(object sender, EventArgs e)
+        void warnTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            double op = targetForm.Opacity + mState * 0.02;
-            if (op >= 0.8)
-            {
-                op = 0.8;
-                timerFade.Enabled = false;
-                mState = 0;
-            }
-            targetForm.Opacity = op;
+            this.Maximize();
         }
-
-        private void keepTopTimer_Tick(object sender, EventArgs e)
-        {
-            SetForegroundWindow(targetForm.Handle);
-        }
-
     }
 }
