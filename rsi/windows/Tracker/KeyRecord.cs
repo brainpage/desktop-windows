@@ -7,6 +7,7 @@ using System.Timers;
 using System.ComponentModel;
 using System.Threading;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 
 namespace Tracker
 {
@@ -40,7 +41,7 @@ namespace Tracker
             SetWindowPos(hwnd, HWND_TOP, 0, 0, ScreenX, ScreenY, SWP_SHOWWINDOW);
         }
 
-        private Activity activity;
+        private AppData appData;
 
         public KeyRecord()
         {
@@ -199,7 +200,7 @@ namespace Tracker
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            activity = Activity.GetInstance();
+            appData = AppData.GetInstance();
             SensocolSocket.GetInstance();
             FormState.SetForm(this);
 
@@ -208,6 +209,15 @@ namespace Tracker
             Application.ApplicationExit += new EventHandler(this.application_Exit);
 
             RestoreImpl();
+
+            if (!appData.SettingClicked)
+            {
+                notifyIcon.ShowBalloonTip(20000, AppConfig.WelcomeTitle, AppConfig.WelcomeContent, ToolTipIcon.Info);
+                notifyIcon.BalloonTipClicked += new EventHandler(this.menuItemSetting_Click);
+            }
+
+            RegistryKey add = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            add.SetValue("rsi", "\"" + Application.ExecutablePath.ToString() + "\"");
         }
 
         private int mState = 1;
@@ -248,9 +258,15 @@ namespace Tracker
 
         private void menuItemSetting_Click(object sender, EventArgs e)
         {
-            string url = activity.LoginUrl;
+            if (!appData.SettingClicked)
+            {
+                appData.SettingClicked = true;
+                appData.Save();
+            }
+
+            string url = appData.LoginUrl;
             if (url == null || url.Equals(""))
-                url = AppConfig.ServerUrl + "?sensor_uuid=" + activity.SensorUUID;
+                url = AppConfig.ServerUrl + "?sensor_uuid=" + appData.SensorUUID;
             Process.Start(url);
 
             SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ServerUrl);

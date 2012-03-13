@@ -63,7 +63,7 @@
     <Compile Include="ActivityTracker.cs" />
     <Compile Include="AppConfig.cs" />
     <Compile Include="FormState.cs" />
-    <Compile Include="Activity.cs" />
+    <Compile Include="AppData.cs" />
     <Compile Include="ActivityHook.cs" />
     <Compile Include="KeyRecord.cs">
       <SubType>Form</SubType>

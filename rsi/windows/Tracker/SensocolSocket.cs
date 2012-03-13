@@ -189,7 +189,7 @@ namespace Tracker
                     case CONNECTED:
                         if (response["action"] == "sys_cmd_re" && response["command"] == "user_login_token")
                         {
-                            Activity.GetInstance().SetLoginUrl(response["url"]);
+                            AppData.GetInstance().SetLoginUrl(response["url"]);
                         }
                         if (response["action"] == "command" && response["command"] == "rsi_alert")
                         {
@@ -218,8 +218,8 @@ namespace Tracker
         private void Connect()
         {
             Dictionary<string, string> sensor = new Dictionary<string, string>();
-            sensor.Add("uuid", Activity.GetInstance().SensorUUID);
-            sensor.Add("token", Activity.GetInstance().AuthToken);
+            sensor.Add("uuid", AppData.GetInstance().SensorUUID);
+            sensor.Add("token", AppData.GetInstance().AuthToken);
             sensor.Add("description", System.Environment.MachineName);
 
             Dictionary<string, object> connect = new Dictionary<string, object>();

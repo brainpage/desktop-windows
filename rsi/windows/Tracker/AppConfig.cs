@@ -17,5 +17,7 @@ namespace Tracker
         public const int ReconnectMaxInterval = 3600 * 1000;
         public const string TipTitle = "Take a break now";
         public const string TipContent = "Your screen will be locked.\r\nClick this to skip it.";
+        public const string WelcomeTitle = "Welcome to RSI";
+        public const string WelcomeContent = "Click here to view you data and change settings";
     }
 }

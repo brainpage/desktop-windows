@@ -6,22 +6,23 @@ using System.Text;
 namespace Tracker
 {
     [Serializable]
-    class Activity
+    class AppData
     {
         public string IpAddress { get; private set; }
 
         public string SensorUUID { get; private set; }
         public string AuthToken { get; private set; }
         public string LoginUrl { get; private set; }
+        public bool SettingClicked { get;  set; }
 
-        private static Activity actInstance = null;
-        public static Activity GetInstance()
+        private static AppData actInstance = null;
+        public static AppData GetInstance()
         {
             if (actInstance == null)
             {
-                actInstance = (Activity)Utils.ReadFile("data");
-                if(actInstance == null)
-                    actInstance = new Activity();
+                actInstance = (AppData)Utils.ReadFile("data");
+                if (actInstance == null)
+                    actInstance = new AppData();
 
                 actInstance.SetValues();
             }
@@ -39,7 +40,7 @@ namespace Tracker
             this.Save();
         }
 
-        private Activity()
+        private AppData()
         {
         }
 
