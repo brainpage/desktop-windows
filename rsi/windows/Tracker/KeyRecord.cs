@@ -216,8 +216,8 @@ namespace Tracker
                 notifyIcon.BalloonTipClicked += new EventHandler(this.menuItemSetting_Click);
             }
 
-            RegistryKey add = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            add.SetValue("rsi", "\"" + Application.ExecutablePath.ToString() + "\"");
+           // RegistryKey add = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+           // add.SetValue("rsi", "\"" + Application.ExecutablePath.ToString() + "\"");
         }
 
         private int mState = 1;

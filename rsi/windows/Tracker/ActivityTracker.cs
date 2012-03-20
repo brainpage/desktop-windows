@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using System.Windows.Automation;
 
 namespace Tracker
 {
@@ -118,7 +119,7 @@ namespace Tracker
             currentEvent.Add("msclks", msclks);
             currentEvent.Add("scrll", scrll);
 
-            SensocolSocket.GetInstance().SendEvent("update", currentEvent);
+           // SensocolSocket.GetInstance().SendEvent("update", currentEvent);
 
             beginNewSample();
         }
@@ -142,16 +143,92 @@ namespace Tracker
             {
                 Int32 hwnd = 0;
                 hwnd = GetForegroundWindow();
-                return Process.GetProcessById(GetWindowProcessID(hwnd)).ProcessName;
+                Process process = Process.GetProcessById(GetWindowProcessID(hwnd));
+                Dictionary<string, object> h = new Dictionary<string,object>();
+                if (process.ProcessName == "iexplore")
+                {
+                    h.Add("name", GetInternetExplorerUrl(process));
+                }
+                else if (process.ProcessName == "firefox")
+                {
+                    h.Add("name", GetFirefoxUrl(process));
+                }
+                else if (process.ProcessName == "chrome")
+                {
+                    h.Add("name", GetChromeUrl(process));
+                }
+              
+                SensocolSocket.GetInstance().SendEvent("test", h);
+                return process.ProcessName;
             }
             catch (Exception e)
             {
                 return null;
             }
+
+           
             //string appExePath = Process.GetProcessById(GetWindowProcessID(hwnd)).MainModule.FileName;
             //string app = Process.GetProcessById(GetWindowProcessID(hwnd)).MainWindowTitle;
+        
             //string appExeName = appExePath.Substring(appExePath.LastIndexOf(@"\") + 1);
         }
+
+        public static string GetChromeUrl(Process process)
+        {
+            if (process == null)
+                throw new ArgumentNullException("process");
+
+            if (process.MainWindowHandle == IntPtr.Zero)
+                return null;
+
+            AutomationElement element = AutomationElement.FromHandle(process.MainWindowHandle);
+            if (element == null)
+                return null;
+
+            AutomationElement edit = element.FindFirst(TreeScope.Children, new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit));
+            return ((ValuePattern)edit.GetCurrentPattern(ValuePattern.Pattern)).Current.Value as string;
+        }
+
+        public static string GetInternetExplorerUrl(Process process)
+        {
+            if (process == null)
+                throw new ArgumentNullException("process");
+
+            if (process.MainWindowHandle == IntPtr.Zero)
+                return null;
+
+            AutomationElement element = AutomationElement.FromHandle(process.MainWindowHandle);
+            if (element == null)
+                return null;
+
+            AutomationElement rebar = element.FindFirst(TreeScope.Children, new PropertyCondition(AutomationElement.ClassNameProperty, "ReBarWindow32"));
+            if (rebar == null)
+                return null;
+
+            AutomationElement edit = rebar.FindFirst(TreeScope.Subtree, new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit));
+
+            return ((ValuePattern)edit.GetCurrentPattern(ValuePattern.Pattern)).Current.Value as string;
+        }
+
+        public static string GetFirefoxUrl(Process process)
+        {
+            if (process == null)
+                throw new ArgumentNullException("process");
+
+            if (process.MainWindowHandle == IntPtr.Zero)
+                return null;
+
+            AutomationElement element = AutomationElement.FromHandle(process.MainWindowHandle);
+            if (element == null)
+                return null;
+
+            AutomationElement doc = element.FindFirst(TreeScope.Subtree, new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Document));
+            if (doc == null)
+                return null;
+
+            return ((ValuePattern)doc.GetCurrentPattern(ValuePattern.Pattern)).Current.Value as string;
+        }
+
 
         private Int32 GetWindowProcessID(Int32 hwnd)
         {
@@ -197,8 +274,6 @@ namespace Tracker
             mouseLastY = y;
             mouseLastTime = durClock.ElapsedMilliseconds;
             mouseLastSaved = false;
-
-            mnum++;
         }
 
         private void MouseMoveSave()
@@ -207,6 +282,8 @@ namespace Tracker
             {
                 currentEvent.Add(mouseLastTime.ToString(), xyStr(mouseLastX, mouseLastY));
                 mouseLastSaved = true;
+
+                mnum++;
             }
         }
 
@@ -238,13 +315,12 @@ namespace Tracker
         {
             if (e.Clicks > 0)
             {
-                msclks++;
                 MouseClick(e);
             }
             MouseMove(e);
 
             scrll += Math.Abs(e.Delta);
-
+            
             try
             {
                 // setTextje();

@@ -53,6 +53,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationClient" />
+    <Reference Include="UIAutomationTypes" />
     <Reference Include="WebSocket4Net">
       <HintPath>..\..\WebSocket4Net.dll</HintPath>
     </Reference>
