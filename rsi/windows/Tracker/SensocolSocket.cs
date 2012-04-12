@@ -193,9 +193,7 @@ namespace Tracker
                         }
                         if (response["action"] == "command" && response["command"] == "rsi_alert")
                         {
-                            int restTime = Int16.Parse( response["rest_time"]);
-                            int warnTime = Int16.Parse(response["warn_time"]);
-                            FormState.GetInstance().BeginNotify(warnTime, restTime);
+                            FormState.GetInstance().BeginNotify();
                         }
                         break;
                     case DISCONNECTED:

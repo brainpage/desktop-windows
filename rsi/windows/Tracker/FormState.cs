@@ -34,15 +34,11 @@ namespace Tracker
 
         public int lockTime;
         private int warnTime;
-        private System.Timers.Timer warnTimer;
-        private Stopwatch restTime;
 
         private FormState(KeyRecord form)
         {
             tracker = ActivityTracker.GetInstance();
-
             targetForm = form;
-
         }
 
         public bool IsMaximized = false;
@@ -55,40 +51,13 @@ namespace Tracker
             }
         }
 
-        public void Restore(string eventName)
+        public void Restore()
         {
-            if (warnTimer != null)
-                warnTimer.Enabled = false;
-
             targetForm.Restore();
             IsMaximized = false;
-
-            restTime.Stop();
-
-            Dictionary<string, object> data = new Dictionary<string, object>();
-            data.Add("dur", restTime.Elapsed.Seconds);
-
-            SensocolSocket.GetInstance().SendEvent(eventName, data);
         }
 
-        public void BeginNotify(int warnTime, int lockTime)
-        {
-            this.warnTime = warnTime;
-            this.lockTime = lockTime;
-
-            warnTimer = new System.Timers.Timer();
-            warnTimer.Interval = warnTime * 1000;
-            warnTimer.Elapsed += new ElapsedEventHandler(this.warnTimer_Elapsed);
-            warnTimer.AutoReset = false;
-            warnTimer.Start();
-
-            restTime = new Stopwatch();
-            restTime.Start();
-
-            targetForm.PopupNotification(warnTime);
-        }
-
-        void warnTimer_Elapsed(object sender, ElapsedEventArgs e)
+        public void BeginNotify()
         {
             this.Maximize();
         }

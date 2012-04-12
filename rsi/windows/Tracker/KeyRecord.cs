@@ -56,7 +56,7 @@ namespace Tracker
 
         private void MaximizeImpl()
         {
-            this.Opacity = 0.4;
+            this.Opacity = 0.6;
             this.Visible = true;
 
             this.WindowState = FormWindowState.Maximized;
@@ -64,27 +64,22 @@ namespace Tracker
             this.TopMost = true;
             SetWinFullScreen(this.Handle);
 
+            watch = new Stopwatch();
+            watch.Start();
+
+            progressTimer = new System.Timers.Timer();
+            progressTimer.Interval = 100;
+            progressTimer.Elapsed += new ElapsedEventHandler(this.progressTimer_Tick);
+            progressTimer.Enabled = true;
+
+            progress.Maximum = AppConfig.BreakTime / 100;
+            progress.Minimum = 0;
+            progress.Step = Convert.ToInt32(1);
+
             fadeTimer = new System.Timers.Timer();
             fadeTimer.Interval = 50;
-            fadeTimer.Elapsed += new ElapsedEventHandler(this.timerFade_Tick);
+            fadeTimer.Elapsed += new ElapsedEventHandler(this.fadeTimer_Tick);
             fadeTimer.Enabled = true;
-
-            btnStop.Visible = true;
-            btnStop.Top = this.ClientSize.Height / 2 - btnStop.Height;
-            btnStop.Left = this.ClientSize.Width / 2 + 50;
-            btnLater.Visible = true;
-            btnLater.Top = this.ClientSize.Height / 2 - btnLater.Height;
-            btnLater.Left = this.ClientSize.Width / 2 - btnLater.Width - 50;
-
-            pbClock.Visible = false;
-            lblTimeLeft.Visible = false;
-            btnGood.Visible = false;
-
-            switchButtonTimer = new System.Timers.Timer();
-            switchButtonTimer.AutoReset = false;
-            switchButtonTimer.Interval = 5000;
-            switchButtonTimer.Elapsed += new ElapsedEventHandler(this.switchButtonTimer_Tick);
-            switchButtonTimer.Start();
         }
 
         public void Maximize()
@@ -108,6 +103,27 @@ namespace Tracker
             new Thread(new ThreadStart(SetOpacityThread)).Start();
         }
 
+        private delegate void IncreaseProgressDelegate();
+        private void IncreaseProgressThread()
+        {
+            this.Invoke(new IncreaseProgressDelegate(IncreaseProgressImpl));
+        }
+
+        private void IncreaseProgressImpl()
+        {
+            this.progress.PerformStep();
+            if (progress.Value == progress.Maximum)
+            {
+                Console.WriteLine(watch.ElapsedMilliseconds);
+                FormState.GetInstance().Restore();
+            }
+        }
+
+        public void IncreaseProgress()
+        {
+            new Thread(new ThreadStart(IncreaseProgressThread)).Start();
+        }
+
         private delegate void RestoreDelegate();
         private void RestoreThread()
         {
@@ -118,10 +134,10 @@ namespace Tracker
         {
             if (fadeTimer != null)
                 fadeTimer.Enabled = false;
-            if (switchButtonTimer != null)
-                switchButtonTimer.Enabled = false;
-            if (updateTimeTimer != null)
-                updateTimeTimer.Enabled = false;
+            if (progressTimer != null)
+                progressTimer.Enabled = false;
+            if (breakTimer != null)
+                breakTimer.Enabled = false;
 
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -134,69 +150,10 @@ namespace Tracker
             new Thread(new ThreadStart(RestoreThread)).Start();
         }
 
-        private delegate void SwitchButtonDelegate();
-        private void SwitchButtonThread()
-        {
-            this.Invoke(new SwitchButtonDelegate(SwitchButtonImpl));
-        }
-
-        private void SwitchButtonImpl()
-        {
-            btnStop.Visible = false;
-            btnLater.Visible = false;
-
-            pbClock.Visible = true;
-            lblTimeLeft.Visible = true;
-            btnGood.Visible = true;
-
-            btnGood.Top = this.ClientSize.Height / 2 - btnGood.Height;
-            btnGood.Left = this.ClientSize.Width / 2 - btnGood.Width / 2;
-            pbClock.Top = btnGood.Top - btnGood.Height;
-            pbClock.Left = btnGood.Left - pbClock.Width;
-            lblTimeLeft.Top = pbClock.Top;
-            lblTimeLeft.Left = pbClock.Left + pbClock.Width;
-
-            lockTime = FormState.GetInstance().lockTime;
-            lblTimeLeft.Text = Utils.FormatTime(lockTime);
-
-            updateTimeTimer = new System.Timers.Timer();
-            updateTimeTimer.Interval = 1000;
-            updateTimeTimer.Elapsed += new ElapsedEventHandler(this.updateTimeTimer_Tick);
-            updateTimeTimer.Start();
-        }
-
-        public void SwitchButton()
-        {
-            new Thread(new ThreadStart(SwitchButtonThread)).Start();
-        }
-
-        private delegate void UpdateTimeDelegate();
-        private void UpdateTimeThread()
-        {
-            this.Invoke(new UpdateTimeDelegate(UpdateTimeImpl));
-        }
-
-        private void UpdateTimeImpl()
-        {
-            lockTime--;
-            lblTimeLeft.Text = Utils.FormatTime(lockTime);
-
-            if (lockTime == 0)
-            {
-                FormState.GetInstance().Restore("rest_over");
-            }
-        }
-
-        public void UpdateTime()
-        {
-            new Thread(new ThreadStart(UpdateTimeThread)).Start();
-        }
-
         private System.Timers.Timer fadeTimer;
-        private System.Timers.Timer switchButtonTimer;
-
-        private int lockTime;
-        private System.Timers.Timer updateTimeTimer;
+        private System.Timers.Timer breakTimer;
+        private System.Timers.Timer progressTimer;
+        private Stopwatch watch;
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -216,13 +173,13 @@ namespace Tracker
                 notifyIcon.BalloonTipClicked += new EventHandler(this.menuItemSetting_Click);
             }
 
-           // RegistryKey add = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-           // add.SetValue("rsi", "\"" + Application.ExecutablePath.ToString() + "\"");
+            // RegistryKey add = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            // add.SetValue("rsi", "\"" + Application.ExecutablePath.ToString() + "\"");
         }
 
         private int mState = 1;
         private double mOpacity;
-        private void timerFade_Tick(object sender, ElapsedEventArgs e)
+        private void fadeTimer_Tick(object sender, ElapsedEventArgs e)
         {
             double op = this.Opacity + mState * 0.02;
             if (op >= 0.9)
@@ -235,25 +192,9 @@ namespace Tracker
             SetOpacity();
         }
 
-        private void switchButtonTimer_Tick(object sender, ElapsedEventArgs e)
+        private void progressTimer_Tick(object sender, ElapsedEventArgs e)
         {
-            SwitchButton();
-        }
-
-        private void updateTimeTimer_Tick(object sender, ElapsedEventArgs e)
-        {
-            UpdateTime();
-        }
-
-        public void PopupNotification(int warn)
-        {
-            notifyIcon.ShowBalloonTip(20000, AppConfig.TipTitle, AppConfig.TipContent, ToolTipIcon.Info);
-            notifyIcon.BalloonTipClicked += new EventHandler(this.balloonTip_Click);
-        }
-
-        private void balloonTip_Click(object sender, EventArgs e)
-        {
-            FormState.GetInstance().Restore("ignore");
+            IncreaseProgress();
         }
 
         private void menuItemSetting_Click(object sender, EventArgs e)
@@ -266,7 +207,7 @@ namespace Tracker
 
             string url = appData.LoginUrl;
             if (url == null || url.Equals(""))
-                url = AppConfig.ServerUrl + "?sensor_uuid=" + appData.SensorUUID;
+                url = AppConfig.ServerUrl + "?connect_to_sensor=" + appData.SensorUUID;
             Process.Start(url);
 
             SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ServerUrl);
@@ -284,17 +225,7 @@ namespace Tracker
 
         private void btnGood_Click(object sender, EventArgs e)
         {
-            FormState.GetInstance().Restore("rest_over");
-        }
-
-        private void btnLater_Click(object sender, EventArgs e)
-        {
-            FormState.GetInstance().Restore("later");
-        }
-
-        private void btnStop_Click(object sender, EventArgs e)
-        {
-            FormState.GetInstance().Restore("bother");
+            FormState.GetInstance().Restore();
         }
     }
 }
