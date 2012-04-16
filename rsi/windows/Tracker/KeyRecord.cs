@@ -64,22 +64,19 @@ namespace Tracker
             this.TopMost = true;
             SetWinFullScreen(this.Handle);
 
-            watch = new Stopwatch();
-            watch.Start();
-
-            progressTimer = new System.Timers.Timer();
-            progressTimer.Interval = 100;
-            progressTimer.Elapsed += new ElapsedEventHandler(this.progressTimer_Tick);
-            progressTimer.Enabled = true;
-
-            progress.Maximum = AppConfig.BreakTime / 100;
-            progress.Minimum = 0;
-            progress.Step = Convert.ToInt32(1);
+            breakTimer = new System.Timers.Timer();
+            breakTimer.Interval = 1000;
+            breakTimer.Elapsed += new ElapsedEventHandler(this.breakTimer_Tick);
+            breakTimer.Enabled = true;
+            seconds = 0;
 
             fadeTimer = new System.Timers.Timer();
             fadeTimer.Interval = 50;
             fadeTimer.Elapsed += new ElapsedEventHandler(this.fadeTimer_Tick);
             fadeTimer.Enabled = true;
+
+            btnGood.Top = this.ClientSize.Height - btnGood.Height * 3;
+            btnGood.Left = this.ClientSize.Width / 2 - btnGood.Width / 2;
         }
 
         public void Maximize()
@@ -103,25 +100,29 @@ namespace Tracker
             new Thread(new ThreadStart(SetOpacityThread)).Start();
         }
 
-        private delegate void IncreaseProgressDelegate();
-        private void IncreaseProgressThread()
+        private delegate void UpdateBreakTimerDelegate();
+        private void UpdateBreakTimerThread()
         {
-            this.Invoke(new IncreaseProgressDelegate(IncreaseProgressImpl));
+            this.Invoke(new UpdateBreakTimerDelegate(UpdateBreakTimerImpl));
         }
 
-        private void IncreaseProgressImpl()
+        private void UpdateBreakTimerImpl()
         {
-            this.progress.PerformStep();
-            if (progress.Value == progress.Maximum)
-            {
-                Console.WriteLine(watch.ElapsedMilliseconds);
-                FormState.GetInstance().Restore();
-            }
+            seconds++;
+            int minutes = seconds / 60;
+            int hour = minutes / 60;
+            int sec = seconds % 60;
+
+            string time = sec.ToString() + "s";
+            if (minutes > 0) { time = minutes.ToString() + "m:" + (sec < 10 ? "0" : "") + time; }
+            if (hour > 0) { time = hour.ToString() + "h:" + (minutes < 10 ? "0" : "") + time; }
+
+            btnGood.Text = time + "   " + AppConfig.StopBreak;
         }
 
-        public void IncreaseProgress()
+        public void UpdateBreakTimer()
         {
-            new Thread(new ThreadStart(IncreaseProgressThread)).Start();
+            new Thread(new ThreadStart(UpdateBreakTimerThread)).Start();
         }
 
         private delegate void RestoreDelegate();
@@ -134,8 +135,6 @@ namespace Tracker
         {
             if (fadeTimer != null)
                 fadeTimer.Enabled = false;
-            if (progressTimer != null)
-                progressTimer.Enabled = false;
             if (breakTimer != null)
                 breakTimer.Enabled = false;
 
@@ -143,6 +142,7 @@ namespace Tracker
             this.MinimizeBox = false;
             this.WindowState = FormWindowState.Minimized;
             this.Visible = false;
+            this.Hide();
         }
 
         public void Restore()
@@ -152,8 +152,7 @@ namespace Tracker
 
         private System.Timers.Timer fadeTimer;
         private System.Timers.Timer breakTimer;
-        private System.Timers.Timer progressTimer;
-        private Stopwatch watch;
+        private int seconds;
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -175,6 +174,8 @@ namespace Tracker
 
             // RegistryKey add = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
             // add.SetValue("rsi", "\"" + Application.ExecutablePath.ToString() + "\"");
+
+            menuItemActivity.Text = AppConfig.Activity;
         }
 
         private int mState = 1;
@@ -192,9 +193,9 @@ namespace Tracker
             SetOpacity();
         }
 
-        private void progressTimer_Tick(object sender, ElapsedEventArgs e)
+        private void breakTimer_Tick(object sender, ElapsedEventArgs e)
         {
-            IncreaseProgress();
+            UpdateBreakTimer();
         }
 
         private void menuItemSetting_Click(object sender, EventArgs e)
@@ -207,10 +208,15 @@ namespace Tracker
 
             string url = appData.LoginUrl;
             if (url == null || url.Equals(""))
-                url = AppConfig.ServerUrl + "?connect_to_sensor=" + appData.SensorUUID;
+                url = AppConfig.SettingsUrl + "?connect_to_sensor=" + appData.SensorUUID;
             Process.Start(url);
 
-            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ServerUrl);
+            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.SettingsUrl);
+        }
+
+        private void menuItemView_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void menuItemExit_Click(object sender, EventArgs e)
@@ -227,5 +233,7 @@ namespace Tracker
         {
             FormState.GetInstance().Restore();
         }
+
+
     }
 }

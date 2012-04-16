@@ -83,10 +83,8 @@ namespace Tracker
             return true;
         }
 
-        public static string Sha1Encrypt(string plain)
+        public static string Sha1Encrypt(string key)
         {
-            string key = plain + AppConfig.SecretKey;
-
             byte[] bytes = System.Text.Encoding.Default.GetBytes(key);
             SHA1 sha = new SHA1CryptoServiceProvider();
 
