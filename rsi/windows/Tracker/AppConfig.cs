@@ -10,6 +10,7 @@ namespace Tracker
         public const string SettingsUrl = "http://192.168.96.175:3000/rsi/settings";
         public const string ViewAnalysisUrl = "http://192.168.96.175:3000/rsi/charts";
         public const string SocketUrl = "ws://sensocol.brainpage.com:8080/sensocol";
+      //  public const string SocketUrl = "ws://192.168.1.50:8080/sensocol";
         public const int EventInterval = 10 * 1000;
         public const int MaxBatchSize = 1024;
         public const int MaxQueueCount = 1000;

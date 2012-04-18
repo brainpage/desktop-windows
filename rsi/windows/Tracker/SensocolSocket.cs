@@ -98,7 +98,7 @@ namespace Tracker
             Dictionary<string, object> eventData = new Dictionary<string, object>();
             eventData.Add("code", eventName);
             eventData.Add("data", data);
-            eventData.Add("action", "event");
+            eventData.Add("action", "update_features");
             eventData.Add("timestamp", timestamp);
 
             eventQueue.Add(eventData);
@@ -157,8 +157,8 @@ namespace Tracker
                     }
 
                     Dictionary<string, object> batchEvent = new Dictionary<string, object>();
-                    batchEvent.Add("events", events);
-                    batchEvent.Add("action", "event_batch");
+                    batchEvent.Add("updated_features", events);
+                    batchEvent.Add("action", "update_feature_batch");
                     this.Send(batchEvent);
                 }
             }
@@ -183,18 +183,23 @@ namespace Tracker
         {
             try
             {
-                Dictionary<string, string> response = JsonConvert.DeserializeObject<Dictionary<string, string>>(e.Message);
+                Dictionary<string, object> response = JsonConvert.DeserializeObject<Dictionary<string, object>>(e.Message);
                 switch (state)
                 {
                     case CONNECTED:
                         if (response["action"] == "sys_cmd_re" && response["command"] == "user_login_token")
                         {
-                            AppData.GetInstance().SetLoginUrl(response["url"]);
+                            AppData.GetInstance().SetLoginUrl(response["url"].ToString());
                         }
-                        if (response["action"] == "command" && response["command"] == "rsi_alert")
+                        else if (response["action"] == "command" && response["command"] == "rsi_alert")
                         {
                             FormState.GetInstance().BeginNotify();
                         }
+                        else
+                        {
+                            int i = 0;
+                        }
+                      
                         break;
                     case DISCONNECTED:
                         if (response["action"] == "connack" && response["status"] == "ok")
@@ -219,6 +224,7 @@ namespace Tracker
             sensor.Add("uuid", AppData.GetInstance().SensorUUID);
             sensor.Add("token", AppData.GetInstance().AuthToken);
             sensor.Add("description", System.Environment.MachineName);
+            sensor.Add("stype", "computer");
 
             Dictionary<string, object> connect = new Dictionary<string, object>();
             connect.Add("action", "connect");

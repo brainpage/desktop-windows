@@ -107,16 +107,19 @@ namespace Tracker
 
         private void FinishSample()
         {
-            MouseMoveSave();
+            MouseMoveSave(); //Save the last mouse move
 
-            currentEvent.Add("dur", durClock.ElapsedMilliseconds);
-            currentEvent.Add("mnum", mnum);
-            currentEvent.Add("app", app);
-            currentEvent.Add("dst", (long)dst);
-            currentEvent.Add("keys", keys);
-            currentEvent.Add("msclks", msclks);
-            currentEvent.Add("scrll", scrll);
- 
+            long timeDiff = durClock.ElapsedMilliseconds;
+            double normalizer = 1000000.0 / timeDiff;
+
+            currentEvent.Add("app", app == null ? "" : app);
+            currentEvent.Add("dur", timeDiff);
+            currentEvent.Add("mnum", (long)(mnum * normalizer));            
+            currentEvent.Add("dst", (long)(dst * normalizer));
+            currentEvent.Add("keys", (long)(keys * normalizer));
+            currentEvent.Add("msclks", (long)(msclks * normalizer));
+            currentEvent.Add("scrll", (long)(scrll * normalizer));
+
             SensocolSocket.GetInstance().SendEvent("update", currentEvent);
 
             beginNewSample();
