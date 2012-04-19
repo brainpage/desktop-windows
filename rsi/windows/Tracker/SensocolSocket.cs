@@ -5,6 +5,7 @@ using System.Text;
 using WebSocket4Net;
 using SuperSocket.ClientEngine;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Timers;
 
 namespace Tracker
@@ -106,12 +107,12 @@ namespace Tracker
                 eventQueue.RemoveAt(0);
         }
 
-        public void RequestLoginTokenFor(string url)
+        public void RequestLoginTokenFor(string url, int ack)
         {
-            Dictionary<string, object> data = new Dictionary<string,object>();
+            Dictionary<string, object> data = new Dictionary<string, object>();
             data.Add("action", "sys_cmd");
             data.Add("command", "user_login_token");
-            data.Add("ack",GetAck());
+            data.Add("ack", ack);
             data.Add("url", url);
 
             this.Send(data);
@@ -184,25 +185,37 @@ namespace Tracker
             try
             {
                 Dictionary<string, object> response = JsonConvert.DeserializeObject<Dictionary<string, object>>(e.Message);
+
                 switch (state)
                 {
                     case CONNECTED:
-                        if (response["action"] == "sys_cmd_re" && response["command"] == "user_login_token")
+                        if (response["action"].ToString() == "sys_cmd_re" && response["command"].ToString() == "user_login_token")
                         {
-                            AppData.GetInstance().SetLoginUrl(response["url"].ToString());
+                            if (Int16.Parse(response["ack"].ToString()) == 1)
+                            {
+                                AppData.GetInstance().SettingUrl = response["url"].ToString();
+                            }
+                            else if (Int16.Parse(response["ack"].ToString()) == 2)
+                            {
+                                AppData.GetInstance().ChartUrl = response["url"].ToString();
+                            }
                         }
-                        else if (response["action"] == "command" && response["command"] == "rsi_alert")
+                        else if (response["action"].ToString() == "event")
                         {
-                            FormState.GetInstance().BeginNotify();
+                            if (response["event"].ToString() == "activity-update")
+                            {
+                                JObject data = (JObject)response["data"];
+                                Console.WriteLine(data["percent"].ToString());
+                                FormState.GetInstance().UpdateActivity(data["percent"].ToString());
+                            }
+                            else if (response["event"].ToString() == "break1")
+                            {
+                                FormState.GetInstance().BeginNotify();
+                            }
                         }
-                        else
-                        {
-                            int i = 0;
-                        }
-                      
                         break;
                     case DISCONNECTED:
-                        if (response["action"] == "connack" && response["status"] == "ok")
+                        if (response["action"].ToString() == "connack" && response["status"].ToString() == "ok")
                         {
                             state = CONNECTED;
                             reconnectTimer.Enabled = false;

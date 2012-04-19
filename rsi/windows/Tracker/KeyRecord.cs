@@ -150,6 +150,22 @@ namespace Tracker
             new Thread(new ThreadStart(RestoreThread)).Start();
         }
 
+        private delegate void UpdateActivityDelegate();
+        private void UpdateActivityThread()
+        {
+            this.Invoke(new UpdateActivityDelegate(UpdateActivityImpl));
+        }
+
+        private void UpdateActivityImpl()
+        {
+            menuItemActivity.Text = AppConfig.Activity + appData.ActivityPercent;
+        }
+
+        public void UpdateActivity()
+        {
+            new Thread(new ThreadStart(UpdateActivityThread)).Start();
+        }
+
         private System.Timers.Timer fadeTimer;
         private System.Timers.Timer breakTimer;
         private int seconds;
@@ -164,8 +180,6 @@ namespace Tracker
 
             Application.ApplicationExit += new EventHandler(this.application_Exit);
 
-            RestoreImpl();
-
             if (!appData.SettingClicked)
             {
                 notifyIcon.ShowBalloonTip(20000, AppConfig.WelcomeTitle, AppConfig.WelcomeContent, ToolTipIcon.Info);
@@ -176,6 +190,8 @@ namespace Tracker
             // add.SetValue("rsi", "\"" + Application.ExecutablePath.ToString() + "\"");
 
             menuItemActivity.Text = AppConfig.Activity;
+
+            FormState.GetInstance().Restore();
         }
 
         private int mState = 1;
@@ -198,25 +214,53 @@ namespace Tracker
             UpdateBreakTimer();
         }
 
+        private System.Timers.Timer getLoginTokenTimer;
         private void menuItemSetting_Click(object sender, EventArgs e)
         {
             if (!appData.SettingClicked)
             {
-                appData.SettingClicked = true;
-                appData.Save();
+                appData.ClickSetting();
             }
 
-            string url = appData.LoginUrl;
+            string url = appData.SettingUrl;
             if (url == null || url.Equals(""))
                 url = AppConfig.SettingsUrl + "?connect_to_sensor=" + appData.SensorUUID;
             Process.Start(url);
 
-            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.SettingsUrl);
+            getLoginTokenTimer = new System.Timers.Timer();
+            getLoginTokenTimer.AutoReset = false;
+            getLoginTokenTimer.Interval = 10000;
+            getLoginTokenTimer.Elapsed += new ElapsedEventHandler(this.getSettingTimer_Tick);
+            getLoginTokenTimer.Enabled = true;
+        }
+
+        private void getSettingTimer_Tick(object sender, ElapsedEventArgs e)
+        {
+            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.SettingsUrl, 1);
         }
 
         private void menuItemView_Click(object sender, EventArgs e)
         {
+            if (!appData.SettingClicked)
+            {
+                appData.ClickSetting();
+            }
 
+            string url = appData.ChartUrl;
+            if (url == null || url.Equals(""))
+                url = AppConfig.ViewAnalysisUrl + "?connect_to_sensor=" + appData.SensorUUID;
+            Process.Start(url);
+
+            getLoginTokenTimer = new System.Timers.Timer();
+            getLoginTokenTimer.AutoReset = false;
+            getLoginTokenTimer.Interval = 10000;
+            getLoginTokenTimer.Elapsed += new ElapsedEventHandler(this.getChartTimer_Tick);
+            getLoginTokenTimer.Enabled = true;
+        }
+
+        private void getChartTimer_Tick(object sender, ElapsedEventArgs e)
+        {
+            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ViewAnalysisUrl, 2);
         }
 
         private void menuItemExit_Click(object sender, EventArgs e)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Tracker
 {
@@ -12,48 +13,52 @@ namespace Tracker
 
         public string SensorUUID { get; private set; }
         public string AuthToken { get; private set; }
-        public string LoginUrl { get; private set; }
-        public bool SettingClicked { get;  set; }
+        public bool SettingClicked { get; set; }
+        public string SettingUrl { get; set; }
+        public string ChartUrl { get; set; }
+        public string ActivityPercent { get; set; }
 
         private static AppData actInstance = null;
         public static AppData GetInstance()
         {
             if (actInstance == null)
             {
-                actInstance = (AppData)Utils.ReadFile("data");
                 if (actInstance == null)
+                {
                     actInstance = new AppData();
 
-                actInstance.SetValues();
+                    string uuid = (string)Application.UserAppDataRegistry.GetValue("sensor_uuid");
+                    if (uuid == null || "".Equals(uuid))
+                    {
+                        uuid = Utils.Sha1Encrypt(Utils.GetMacAddress());
+                        Application.UserAppDataRegistry.SetValue("sensor_uuid", uuid);
+                    }
+                    actInstance.SensorUUID = uuid;
+
+                    string token = (string)Application.UserAppDataRegistry.GetValue("auth_token");
+                    if (token == null || "".Equals(token))
+                    {
+                        token = Utils.Sha1Encrypt(Guid.NewGuid().ToString());
+                        Application.UserAppDataRegistry.SetValue("auth_token", token);
+                    }
+                    actInstance.AuthToken = token;
+
+                    object clicked = Application.UserAppDataRegistry.GetValue("setting_clicked");
+                    actInstance.SettingClicked = (clicked != null && (string)clicked == "True");
+                }
+
             }
             return actInstance;
         }
 
-        public void Save()
+        public void ClickSetting()
         {
-            Utils.WriteFile("data", this);
-        }
-
-        public void SetLoginUrl(string token)
-        {
-            this.LoginUrl = token;
-            this.Save();
+            this.SettingClicked = true;
+            Application.UserAppDataRegistry.SetValue("setting_clicked", true);
         }
 
         private AppData()
         {
-        }
-
-        // Initilize values
-        private void SetValues()
-        {
-            if (this.SensorUUID == null)
-                this.SensorUUID = Utils.Sha1Encrypt(Utils.GetMacAddress());
-
-            if (this.AuthToken == null)
-                this.AuthToken = Utils.Sha1Encrypt(Guid.NewGuid().ToString());
-
-            Save();
         }
 
     }

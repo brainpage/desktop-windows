@@ -61,5 +61,11 @@ namespace Tracker
         {
             this.Maximize();
         }
+
+        public void UpdateActivity(string percent)
+        {
+            AppData.GetInstance().ActivityPercent = percent;
+            targetForm.UpdateActivity();
+        }
     }
 }
