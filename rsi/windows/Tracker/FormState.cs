@@ -31,14 +31,13 @@ namespace Tracker
 
         private ActivityTracker tracker;
         private KeyRecord targetForm;
-
-        public int lockTime;
-        private int warnTime;
+        private AppData appData;
 
         private FormState(KeyRecord form)
         {
             tracker = ActivityTracker.GetInstance();
             targetForm = form;
+            appData = AppData.GetInstance();
         }
 
         public bool IsMaximized = false;
@@ -64,8 +63,14 @@ namespace Tracker
 
         public void UpdateActivity(string percent)
         {
-            AppData.GetInstance().ActivityPercent = percent;
+            appData.ActivityPercent = percent;
             targetForm.UpdateActivity();
+        }
+
+        public void ShowScreenSaver(string url)
+        {
+            appData.ScreenSaverUrl = url;
+            targetForm.ShowScreenSaver();
         }
     }
 }

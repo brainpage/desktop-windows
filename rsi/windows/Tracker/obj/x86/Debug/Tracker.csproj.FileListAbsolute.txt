@@ -1,9 +1,9 @@
+C:\work\desktop-windows\rsi\windows\Tracker\bin\Debug\Tracker.exe
+C:\work\desktop-windows\rsi\windows\Tracker\bin\Debug\Tracker.pdb
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\ResolveAssemblyReference.cache
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.KeyRecord.resources
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.Properties.Resources.resources
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\GenerateResource.read.1.tlog
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\GenerateResource.write.1.tlog
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.exe
-C:\work\desktop-windows\rsi\windows\Tracker\bin\Debug\Tracker.exe
-C:\work\desktop-windows\rsi\windows\Tracker\bin\Debug\Tracker.pdb
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.pdb

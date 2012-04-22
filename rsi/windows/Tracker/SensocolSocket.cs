@@ -7,6 +7,7 @@ using SuperSocket.ClientEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Timers;
+using System.Diagnostics;
 
 namespace Tracker
 {
@@ -107,12 +108,13 @@ namespace Tracker
                 eventQueue.RemoveAt(0);
         }
 
-        public void RequestLoginTokenFor(string url, int ack)
+        private int ack = 0;
+        public void RequestLoginTokenFor(string url)
         {
             Dictionary<string, object> data = new Dictionary<string, object>();
             data.Add("action", "sys_cmd");
             data.Add("command", "user_login_token");
-            data.Add("ack", ack);
+            data.Add("ack", ++ack);
             data.Add("url", url);
 
             this.Send(data);
@@ -125,6 +127,7 @@ namespace Tracker
 
         private void Send(Object content)
         {
+            Console.WriteLine(JsonConvert.SerializeObject(content));
             websocket.Send(content.GetType().Name == "String" ? content.ToString() : JsonConvert.SerializeObject(content));
         }
 
@@ -185,19 +188,21 @@ namespace Tracker
             try
             {
                 Dictionary<string, object> response = JsonConvert.DeserializeObject<Dictionary<string, object>>(e.Message);
-
+                Console.WriteLine("return result:");
+                Console.WriteLine(e.Message);
                 switch (state)
                 {
                     case CONNECTED:
                         if (response["action"].ToString() == "sys_cmd_re" && response["command"].ToString() == "user_login_token")
                         {
-                            if (Int16.Parse(response["ack"].ToString()) == 1)
+                            string url = response["url"].ToString();
+                            if (url.Contains(AppConfig.ScreenSaverUrl))
                             {
-                                AppData.GetInstance().SettingUrl = response["url"].ToString();
+                                FormState.GetInstance().ShowScreenSaver(url);
                             }
-                            else if (Int16.Parse(response["ack"].ToString()) == 2)
+                            else
                             {
-                                AppData.GetInstance().ChartUrl = response["url"].ToString();
+                                Process.Start(url);
                             }
                         }
                         else if (response["action"].ToString() == "event")
@@ -205,7 +210,6 @@ namespace Tracker
                             if (response["event"].ToString() == "activity-update")
                             {
                                 JObject data = (JObject)response["data"];
-                                Console.WriteLine(data["percent"].ToString());
                                 FormState.GetInstance().UpdateActivity(data["percent"].ToString());
                             }
                             else if (response["event"].ToString() == "break1")
@@ -218,6 +222,7 @@ namespace Tracker
                         if (response["action"].ToString() == "connack" && response["status"].ToString() == "ok")
                         {
                             state = CONNECTED;
+                            FormState.GetInstance().BeginNotify();
                             reconnectTimer.Enabled = false;
                         }
                         break;

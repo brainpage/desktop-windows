@@ -75,13 +75,38 @@ namespace Tracker
             fadeTimer.Elapsed += new ElapsedEventHandler(this.fadeTimer_Tick);
             fadeTimer.Enabled = true;
 
-            btnGood.Top = this.ClientSize.Height - btnGood.Height * 3;
+            btnGood.Top = this.ClientSize.Height - btnGood.Height * 2;
             btnGood.Left = this.ClientSize.Width / 2 - btnGood.Width / 2;
+
+            webBrowser.Width = this.ClientSize.Width;
+            webBrowser.Height = btnGood.Top;
+            webBrowser.Top = 0;
+            webBrowser.Left = 0;
+
+            appData.FromLastBreak = new Stopwatch();
+            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ScreenSaverUrl + "?t=" + appData.FromLastBreak.ElapsedMilliseconds / 1000);
+            appData.FromLastBreak.Stop();
         }
 
         public void Maximize()
         {
             new Thread(new ThreadStart(MaximizeThread)).Start();
+        }
+
+        private delegate void ShowScreenSaverDelegate();
+        private void ShowScreenSaverThread()
+        {
+            this.Invoke(new ShowScreenSaverDelegate(ShowScreenSaverImpl));
+        }
+
+        private void ShowScreenSaverImpl()
+        {
+            webBrowser.Navigate(appData.ScreenSaverUrl);
+        }
+
+        public void ShowScreenSaver()
+        {
+            new Thread(new ThreadStart(ShowScreenSaverThread)).Start();
         }
 
         private delegate void SetOpacityDelegate();
@@ -143,6 +168,10 @@ namespace Tracker
             this.WindowState = FormWindowState.Minimized;
             this.Visible = false;
             this.Hide();
+
+            if (appData.FromLastBreak == null)
+                appData.FromLastBreak = new Stopwatch();
+            appData.FromLastBreak.Reset();
         }
 
         public void Restore()
@@ -189,9 +218,7 @@ namespace Tracker
             // RegistryKey add = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
             // add.SetValue("rsi", "\"" + Application.ExecutablePath.ToString() + "\"");
 
-            menuItemActivity.Text = AppConfig.Activity;
-
-            FormState.GetInstance().Restore();
+             FormState.GetInstance().Restore();
         }
 
         private int mState = 1;
@@ -199,9 +226,9 @@ namespace Tracker
         private void fadeTimer_Tick(object sender, ElapsedEventArgs e)
         {
             double op = this.Opacity + mState * 0.02;
-            if (op >= 0.9)
+            if (op >= 1)
             {
-                op = 0.9;
+                op = 1;
                 fadeTimer.Enabled = false;
                 mState = 0;
             }
@@ -214,53 +241,30 @@ namespace Tracker
             UpdateBreakTimer();
         }
 
-        private System.Timers.Timer getLoginTokenTimer;
         private void menuItemSetting_Click(object sender, EventArgs e)
         {
-            if (!appData.SettingClicked)
-            {
-                appData.ClickSetting();
-            }
-
-            string url = appData.SettingUrl;
-            if (url == null || url.Equals(""))
-                url = AppConfig.SettingsUrl + "?connect_to_sensor=" + appData.SensorUUID;
-            Process.Start(url);
-
-            getLoginTokenTimer = new System.Timers.Timer();
-            getLoginTokenTimer.AutoReset = false;
-            getLoginTokenTimer.Interval = 10000;
-            getLoginTokenTimer.Elapsed += new ElapsedEventHandler(this.getSettingTimer_Tick);
-            getLoginTokenTimer.Enabled = true;
-        }
-
-        private void getSettingTimer_Tick(object sender, ElapsedEventArgs e)
-        {
-            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.SettingsUrl, 1);
+            SetAsClicked();
+            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.SettingsUrl);
         }
 
         private void menuItemView_Click(object sender, EventArgs e)
         {
+            SetAsClicked();
+            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ViewAnalysisUrl);
+        }
+
+        private void balloonTip_Click(object sender, EventArgs e)
+        {
+            SetAsClicked();
+            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ViewAnalysisUrl);
+        }
+
+        private void SetAsClicked()
+        {
             if (!appData.SettingClicked)
             {
                 appData.ClickSetting();
             }
-
-            string url = appData.ChartUrl;
-            if (url == null || url.Equals(""))
-                url = AppConfig.ViewAnalysisUrl + "?connect_to_sensor=" + appData.SensorUUID;
-            Process.Start(url);
-
-            getLoginTokenTimer = new System.Timers.Timer();
-            getLoginTokenTimer.AutoReset = false;
-            getLoginTokenTimer.Interval = 10000;
-            getLoginTokenTimer.Elapsed += new ElapsedEventHandler(this.getChartTimer_Tick);
-            getLoginTokenTimer.Enabled = true;
-        }
-
-        private void getChartTimer_Tick(object sender, ElapsedEventArgs e)
-        {
-            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ViewAnalysisUrl, 2);
         }
 
         private void menuItemExit_Click(object sender, EventArgs e)

@@ -33,13 +33,14 @@
             this.timerFade = new System.Windows.Forms.Timer(this.components);
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuItemActivity = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.menuItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItemSetting = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.menuItemExit = new System.Windows.Forms.ToolStripMenuItem();
             this.btnGood = new System.Windows.Forms.Button();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.menuItemActivity = new System.Windows.Forms.ToolStripMenuItem();
+            this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -61,6 +62,16 @@
             this.menuItemExit});
             this.contextMenu.Name = "contextMenu";
             this.contextMenu.Size = new System.Drawing.Size(198, 104);
+            // 
+            // menuItemActivity
+            // 
+            this.menuItemActivity.Name = "menuItemActivity";
+            this.menuItemActivity.Size = new System.Drawing.Size(197, 22);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(194, 6);
             // 
             // menuItemView
             // 
@@ -100,23 +111,22 @@
             this.btnGood.UseVisualStyleBackColor = true;
             this.btnGood.Click += new System.EventHandler(this.btnGood_Click);
             // 
-            // toolStripSeparator2
+            // webBrowser
             // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(194, 6);
-            // 
-            // menuItemActivity
-            // 
-            this.menuItemActivity.Name = "menuItemActivity";
-            this.menuItemActivity.Size = new System.Drawing.Size(197, 22);
+            this.webBrowser.Location = new System.Drawing.Point(73, 31);
+            this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser.Name = "webBrowser";
+            this.webBrowser.Size = new System.Drawing.Size(575, 296);
+            this.webBrowser.TabIndex = 8;
             // 
             // KeyRecord
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.BackColor = System.Drawing.Color.Black;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(729, 541);
+            this.Controls.Add(this.webBrowser);
             this.Controls.Add(this.btnGood);
             this.Name = "KeyRecord";
             this.Text = "MainForm";
@@ -138,6 +148,7 @@
         private System.Windows.Forms.ToolStripMenuItem menuItemView;
         private System.Windows.Forms.ToolStripMenuItem menuItemActivity;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.WebBrowser webBrowser;
   
     }
 }

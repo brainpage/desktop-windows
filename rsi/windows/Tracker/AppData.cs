@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Tracker
 {
@@ -17,6 +18,8 @@ namespace Tracker
         public string SettingUrl { get; set; }
         public string ChartUrl { get; set; }
         public string ActivityPercent { get; set; }
+        public Stopwatch FromLastBreak { get; set; }
+        public string ScreenSaverUrl { get; set; }
 
         private static AppData actInstance = null;
         public static AppData GetInstance()
