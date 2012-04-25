@@ -7,3 +7,12 @@ C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\GenerateResource.read.
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\GenerateResource.write.1.tlog
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.exe
 C:\work\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.pdb
+F:\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.exe
+F:\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.pdb
+F:\desktop-windows\rsi\windows\Tracker\bin\Debug\Tracker.exe
+F:\desktop-windows\rsi\windows\Tracker\bin\Debug\Tracker.pdb
+F:\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\ResolveAssemblyReference.cache
+F:\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.KeyRecord.resources
+F:\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\Tracker.Properties.Resources.resources
+F:\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\GenerateResource.read.1.tlog
+F:\desktop-windows\rsi\windows\Tracker\obj\x86\Debug\GenerateResource.write.1.tlog

@@ -59,33 +59,42 @@ namespace Tracker
             this.Opacity = 0.6;
             this.Visible = true;
 
-            this.WindowState = FormWindowState.Maximized;
+            // this.WindowState = FormWindowState.Maximized;
+            this.Width = 600;
+            this.Height = 400;
+            int boundWidth = Screen.PrimaryScreen.Bounds.Width;
+            int boundHeight = Screen.PrimaryScreen.Bounds.Height;
+            int x = boundWidth - this.Width;
+            int y = boundHeight - this.Height;
+            this.Location = new Point(x / 2, y / 2);
+
             this.FormBorderStyle = FormBorderStyle.None;
             this.TopMost = true;
-            SetWinFullScreen(this.Handle);
-
-            breakTimer = new System.Timers.Timer();
-            breakTimer.Interval = 1000;
-            breakTimer.Elapsed += new ElapsedEventHandler(this.breakTimer_Tick);
-            breakTimer.Enabled = true;
-            seconds = 0;
+            //SetWinFullScreen(this.Handle);
 
             fadeTimer = new System.Timers.Timer();
             fadeTimer.Interval = 50;
             fadeTimer.Elapsed += new ElapsedEventHandler(this.fadeTimer_Tick);
             fadeTimer.Enabled = true;
 
-            btnGood.Top = this.ClientSize.Height - btnGood.Height * 2;
+            btnGood.Top = this.ClientSize.Height - btnGood.Height;
             btnGood.Left = this.ClientSize.Width / 2 - btnGood.Width / 2;
 
             webBrowser.Width = this.ClientSize.Width;
             webBrowser.Height = btnGood.Top;
             webBrowser.Top = 0;
             webBrowser.Left = 0;
+            webBrowser.Hide();
 
             appData.FromLastBreak = new Stopwatch();
             SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ScreenSaverUrl + "?t=" + appData.FromLastBreak.ElapsedMilliseconds / 1000);
             appData.FromLastBreak.Stop();
+        }
+
+        private void ShowScreenSaver(object sender,
+    WebBrowserDocumentCompletedEventArgs e)
+        {
+            webBrowser.Show();
         }
 
         public void Maximize()
@@ -125,31 +134,6 @@ namespace Tracker
             new Thread(new ThreadStart(SetOpacityThread)).Start();
         }
 
-        private delegate void UpdateBreakTimerDelegate();
-        private void UpdateBreakTimerThread()
-        {
-            this.Invoke(new UpdateBreakTimerDelegate(UpdateBreakTimerImpl));
-        }
-
-        private void UpdateBreakTimerImpl()
-        {
-            seconds++;
-            int minutes = seconds / 60;
-            int hour = minutes / 60;
-            int sec = seconds % 60;
-
-            string time = sec.ToString() + "s";
-            if (minutes > 0) { time = minutes.ToString() + "m:" + (sec < 10 ? "0" : "") + time; }
-            if (hour > 0) { time = hour.ToString() + "h:" + (minutes < 10 ? "0" : "") + time; }
-
-            btnGood.Text = time + "   " + AppConfig.StopBreak;
-        }
-
-        public void UpdateBreakTimer()
-        {
-            new Thread(new ThreadStart(UpdateBreakTimerThread)).Start();
-        }
-
         private delegate void RestoreDelegate();
         private void RestoreThread()
         {
@@ -160,18 +144,17 @@ namespace Tracker
         {
             if (fadeTimer != null)
                 fadeTimer.Enabled = false;
-            if (breakTimer != null)
-                breakTimer.Enabled = false;
 
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.WindowState = FormWindowState.Minimized;
             this.Visible = false;
-            this.Hide();
 
             if (appData.FromLastBreak == null)
                 appData.FromLastBreak = new Stopwatch();
             appData.FromLastBreak.Reset();
+
+            this.Hide();
         }
 
         public void Restore()
@@ -196,8 +179,6 @@ namespace Tracker
         }
 
         private System.Timers.Timer fadeTimer;
-        private System.Timers.Timer breakTimer;
-        private int seconds;
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -218,7 +199,8 @@ namespace Tracker
             // RegistryKey add = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
             // add.SetValue("rsi", "\"" + Application.ExecutablePath.ToString() + "\"");
 
-             FormState.GetInstance().Restore();
+            FormState.GetInstance().Restore();
+            
         }
 
         private int mState = 1;
@@ -234,11 +216,6 @@ namespace Tracker
             }
             mOpacity = op;
             SetOpacity();
-        }
-
-        private void breakTimer_Tick(object sender, ElapsedEventArgs e)
-        {
-            UpdateBreakTimer();
         }
 
         private void menuItemSetting_Click(object sender, EventArgs e)
