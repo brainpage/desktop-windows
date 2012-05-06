@@ -1,0 +1,26 @@
+16:15:45========================================
+16:15:45uuid before set:b316be678486bc0e502cb994beb0eda44f5e896c
+16:15:45uuid after set:b316be678486bc0e502cb994beb0eda44f5e896c
+16:15:45token before set:f28cc108fa51e18d29a5a02f74e0b8c1144024a2
+16:15:45token after set:f28cc108fa51e18d29a5a02f74e0b8c1144024a2
+16:15:49{"action":"connect","sensor":{"uuid":"b316be678486bc0e502cb994beb0eda44f5e896c","token":"f28cc108fa51e18d29a5a02f74e0b8c1144024a2","description":"GL-PC","stype":"computer"}}
+16:15:53{"action":"connect","sensor":{"uuid":"b316be678486bc0e502cb994beb0eda44f5e896c","token":"f28cc108fa51e18d29a5a02f74e0b8c1144024a2","description":"GL-PC","stype":"computer"}}
+16:15:57{"action":"connect","sensor":{"uuid":"b316be678486bc0e502cb994beb0eda44f5e896c","token":"f28cc108fa51e18d29a5a02f74e0b8c1144024a2","description":"GL-PC","stype":"computer"}}
+16:15:58{"action":"connack","status":"error","reason":"Invalid Token"}
+16:15:59{"action":"connect","sensor":{"uuid":"b316be678486bc0e502cb994beb0eda44f5e896c","token":"f28cc108fa51e18d29a5a02f74e0b8c1144024a2","description":"GL-PC","stype":"computer"}}
+16:16:00{"action":"connack","status":"error","reason":"Invalid Token"}
+16:16:13========================================
+16:16:13uuid before set:b316be678486bc0e502cb994beb0eda44f5e896c
+16:16:13uuid after set:b316be678486bc0e502cb994beb0eda44f5e896c
+16:16:13token before set:f28cc108fa51e18d29a5a02f74e0b8c1144024a2
+16:16:13token after set:f28cc108fa51e18d29a5a02f74e0b8c1144024a2
+16:16:14{"action":"connect","sensor":{"uuid":"b316be678486bc0e502cb994beb0eda44f5e896c","token":"f28cc108fa51e18d29a5a02f74e0b8c1144024a2","description":"GL-PC","stype":"computer"}}
+16:16:15{"action":"connack","status":"error","reason":"Invalid Token"}
+16:16:16{"action":"connect","sensor":{"uuid":"b316be678486bc0e502cb994beb0eda44f5e896c","token":"f28cc108fa51e18d29a5a02f74e0b8c1144024a2","description":"GL-PC","stype":"computer"}}
+16:16:16{"action":"connack","status":"error","reason":"Invalid Token"}
+16:16:20{"action":"connect","sensor":{"uuid":"b316be678486bc0e502cb994beb0eda44f5e896c","token":"f28cc108fa51e18d29a5a02f74e0b8c1144024a2","description":"GL-PC","stype":"computer"}}
+16:16:20{"action":"connack","status":"error","reason":"Invalid Token"}
+16:16:28{"action":"connect","sensor":{"uuid":"b316be678486bc0e502cb994beb0eda44f5e896c","token":"f28cc108fa51e18d29a5a02f74e0b8c1144024a2","description":"GL-PC","stype":"computer"}}
+16:16:28{"action":"connack","status":"error","reason":"Invalid Token"}
+16:16:44{"action":"connect","sensor":{"uuid":"b316be678486bc0e502cb994beb0eda44f5e896c","token":"f28cc108fa51e18d29a5a02f74e0b8c1144024a2","description":"GL-PC","stype":"computer"}}
+16:16:44{"action":"connack","status":"error","reason":"Invalid Token"}
