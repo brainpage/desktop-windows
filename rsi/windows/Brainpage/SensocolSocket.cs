@@ -127,7 +127,6 @@ namespace Brainpage
 
         private void Send(Object content)
         {
-            Utils.Log(JsonConvert.SerializeObject(content));
             websocket.Send(content.GetType().Name == "String" ? content.ToString() : JsonConvert.SerializeObject(content));
         }
 
@@ -188,8 +187,7 @@ namespace Brainpage
             try
             {
                 Dictionary<string, object> response = JsonConvert.DeserializeObject<Dictionary<string, object>>(e.Message);
-
-                Utils.Log(e.Message);
+                Console.WriteLine(e.Message);
                 switch (state)
                 {
                     case CONNECTED:

@@ -12,7 +12,7 @@ namespace Brainpage
         public const string PortalUrl = RootUrl + "portals";
         public const string ScreenSaverUrl = RootUrl + "screen_saver";
         public const string SocketUrl = "ws://sensocol.brainpage.com:8080/sensocol";
-        public const int EventInterval = 10 * 1000;
+        public const int EventInterval = 60 * 1000;
         public const int MaxBatchSize = 1024;
         public const int MaxQueueCount = 1000;
         public const int ReconnectMinInterval = 2 * 1000;

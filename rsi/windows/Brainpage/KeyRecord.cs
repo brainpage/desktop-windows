@@ -57,7 +57,7 @@ namespace Brainpage
         private void MaximizeImpl()
         {
             this.Opacity = 0.6;
-            this.Visible = true;
+            this.Show();
 
             // this.WindowState = FormWindowState.Maximized;
             this.Width = 600;
@@ -86,7 +86,6 @@ namespace Brainpage
             webBrowser.Left = 0;
             webBrowser.Hide();
 
-            appData.FromLastBreak = new Stopwatch();
             SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ScreenSaverUrl + "?t=" + appData.FromLastBreak.ElapsedMilliseconds / 1000);
             appData.FromLastBreak.Stop();
         }
