@@ -46,7 +46,8 @@ namespace Brainpage
         {
             if (!IsMaximized)
             {
-                targetForm.Maximize();
+                targetForm.MaximizeRemind();
+                IsMaximized = true;
             }
         }
 
@@ -74,6 +75,13 @@ namespace Brainpage
         {
             appData.DebugInfo = info;
             targetForm.UpdateStatusIcon();
+        }
+
+        public void UpdateConnectionStatus(string status, bool connected)
+        {
+            appData.ConnectionStatus = status;
+            appData.Connected = connected;
+            targetForm.UpdateConnectionStatus();
         }
 
         public void UpdateActivity(int percent)
@@ -124,12 +132,6 @@ namespace Brainpage
             }
             appData.EnergyLeft = (100 - percent).ToString() + " %";
             targetForm.UpdateStatusIcon();
-        }
-
-        public void ShowScreenSaver(string url)
-        {
-            appData.ScreenSaverUrl = url;
-            targetForm.ShowScreenSaver();
         }
     }
 }

@@ -170,16 +170,19 @@ namespace Brainpage
         private void websocket_Opened(object sender, EventArgs e)
         {
             Connect();
+            FormState.GetInstance().UpdateConnectionStatus(AppConfig.StrConnecting, false);
         }
 
         private void websocket_Closed(object sender, EventArgs e)
         {
             Reconnect();
+            FormState.GetInstance().UpdateConnectionStatus(AppConfig.StrDisconnected, false);
         }
 
         private void websocket_Error(object sender, ErrorEventArgs e)
         {
             Reconnect();
+            FormState.GetInstance().UpdateConnectionStatus(AppConfig.StrDisconnected, false);
         }
 
         private void websocket_MessageReceived(object sender, MessageReceivedEventArgs e)
@@ -187,21 +190,14 @@ namespace Brainpage
             try
             {
                 Dictionary<string, object> response = JsonConvert.DeserializeObject<Dictionary<string, object>>(e.Message);
-                Console.WriteLine(e.Message);
+               
                 switch (state)
                 {
                     case CONNECTED:
                         if (response["action"].ToString() == "sys_cmd_re" && response["command"].ToString() == "user_login_token")
                         {
                             string url = response["url"].ToString();
-                            if (url.Contains(AppConfig.ScreenSaverUrl))
-                            {
-                                FormState.GetInstance().ShowScreenSaver(url);
-                            }
-                            else
-                            {
-                                Process.Start(url);
-                            }
+                            Process.Start(url);
                         }
                         else if (response["action"].ToString() == "event")
                         {
@@ -221,7 +217,9 @@ namespace Brainpage
                         {
                             state = CONNECTED;
                             FormState.GetInstance().AfterConnected();
+                            FormState.GetInstance().UpdateConnectionStatus(AppConfig.StrConnected, true);
                             reconnectTimer.Enabled = false;
+
                         }
                         break;
                     default:

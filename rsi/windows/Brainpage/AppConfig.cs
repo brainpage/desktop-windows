@@ -19,7 +19,9 @@ namespace Brainpage
         public const int ReconnectMaxInterval = 3600 * 1000;
         public const string StrStopBreak = "Stop Break";
         public const string StrEnergyLeft = "Energy left: ";
-        public const string TipTitle = "Take a break now";
+        public const string StrConnecting = "Connecting to server ...";
+        public const string StrConnected = "Connected";
+        public const string StrDisconnected = "Disconnected with server.";
 
         private const string RootUrl = "http://www.brainpage.com/rsi/";
     }

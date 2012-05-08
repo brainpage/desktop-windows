@@ -20,6 +20,8 @@ namespace Brainpage
         public string ChartUrl { get; set; }
         public Icon StatusIcon { get; set; }
         public string EnergyLeft { get; set; }
+        public string ConnectionStatus { get; set; }
+        public bool Connected { get; set; }
         public string DebugInfo { get; set; }
         public Stopwatch FromLastBreak { get; set; }
         public string ScreenSaverUrl { get; set; }
@@ -63,6 +65,7 @@ namespace Brainpage
             Application.UserAppDataRegistry.SetValue("first_time", "launched");
         }
 
+       
         private AppData()
         {
         }

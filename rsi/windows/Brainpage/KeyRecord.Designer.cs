@@ -104,6 +104,7 @@
             this.webBrowser.Name = "webBrowser";
             this.webBrowser.Size = new System.Drawing.Size(649, 386);
             this.webBrowser.TabIndex = 8;
+            this.webBrowser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser_DocumentCompleted);
             // 
             // KeyRecord
             // 
@@ -116,6 +117,7 @@
             this.Controls.Add(this.btnGood);
             this.Name = "KeyRecord";
             this.ShowInTaskbar = false;
+            this.Text = "reminder";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
