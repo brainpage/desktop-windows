@@ -1,9 +1,0 @@
-F:\desktop-windows\rsi\windows\Brainpage\obj\x86\Debug\ResolveAssemblyReference.cache
-F:\desktop-windows\rsi\windows\Brainpage\obj\x86\Debug\Brainpage.KeyRecord.resources
-F:\desktop-windows\rsi\windows\Brainpage\obj\x86\Debug\Brainpage.Properties.Resources.resources
-F:\desktop-windows\rsi\windows\Brainpage\obj\x86\Debug\GenerateResource.read.1.tlog
-F:\desktop-windows\rsi\windows\Brainpage\obj\x86\Debug\GenerateResource.write.1.tlog
-F:\desktop-windows\rsi\windows\Brainpage\bin\Debug\Brainpage.exe
-F:\desktop-windows\rsi\windows\Brainpage\bin\Debug\Brainpage.pdb
-F:\desktop-windows\rsi\windows\Brainpage\obj\x86\Debug\Brainpage.exe
-F:\desktop-windows\rsi\windows\Brainpage\obj\x86\Debug\Brainpage.pdb
