@@ -127,6 +127,27 @@
     <value>239, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="menuItemView.Size" type="System.Drawing.Size, System.Drawing">
+    <value>172, 22</value>
+  </data>
+  <data name="menuItemView.Text" xml:space="preserve">
+    <value>Go to Charts ...</value>
+  </data>
+  <data name="menuItemSetting.Size" type="System.Drawing.Size, System.Drawing">
+    <value>172, 22</value>
+  </data>
+  <data name="menuItemSetting.Text" xml:space="preserve">
+    <value>Go to Settings ...</value>
+  </data>
+  <data name="toolStripSeparator1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>169, 6</value>
+  </data>
+  <data name="menuItemExit.Size" type="System.Drawing.Size, System.Drawing">
+    <value>172, 22</value>
+  </data>
+  <data name="menuItemExit.Text" xml:space="preserve">
+    <value>Exit Brainpage</value>
+  </data>
   <data name="contextMenu.Size" type="System.Drawing.Size, System.Drawing">
     <value>173, 98</value>
   </data>
@@ -237,27 +258,6 @@
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="notifyIcon.Visible" type="System.Boolean, mscorlib">
     <value>True</value>
-  </data>
-  <data name="menuItemView.Size" type="System.Drawing.Size, System.Drawing">
-    <value>172, 22</value>
-  </data>
-  <data name="menuItemView.Text" xml:space="preserve">
-    <value>Go to Charts ...</value>
-  </data>
-  <data name="menuItemSetting.Size" type="System.Drawing.Size, System.Drawing">
-    <value>172, 22</value>
-  </data>
-  <data name="menuItemSetting.Text" xml:space="preserve">
-    <value>Go to Settings ...</value>
-  </data>
-  <data name="toolStripSeparator1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>169, 6</value>
-  </data>
-  <data name="menuItemExit.Size" type="System.Drawing.Size, System.Drawing">
-    <value>172, 22</value>
-  </data>
-  <data name="menuItemExit.Text" xml:space="preserve">
-    <value>Exit Brainpage</value>
   </data>
   <data name="btnGood.Font" type="System.Drawing.Font, System.Drawing">
     <value>微软雅黑, 14px</value>

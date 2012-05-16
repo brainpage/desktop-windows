@@ -140,5 +140,23 @@ namespace Brainpage {
                 return ResourceManager.GetString("viewSetting", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   查找类似 Welcome to Brainpage 的本地化字符串。
+        /// </summary>
+        internal static string welcome {
+            get {
+                return ResourceManager.GetString("welcome", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Click here to see data analysis charts 的本地化字符串。
+        /// </summary>
+        internal static string welcomeBody {
+            get {
+                return ResourceManager.GetString("welcomeBody", resourceCulture);
+            }
+        }
     }
 }

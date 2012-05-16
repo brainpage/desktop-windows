@@ -47,7 +47,7 @@ namespace Brainpage
                     string token = (string)Application.UserAppDataRegistry.GetValue("auth_token");
                     if (token == null || "".Equals(token))
                     {
-                        token = Utils.Sha1Encrypt(Guid.NewGuid().ToString());
+                        token = Utils.Sha1Encrypt(Utils.GetMacAddress() + "brainpage");
                         Application.UserAppDataRegistry.SetValue("auth_token", token);
                     }
                     actInstance.AuthToken = token;

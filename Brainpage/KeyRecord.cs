@@ -154,11 +154,23 @@ namespace Brainpage
             this.Invoke(new UpdateConnectionStatusDelegate(UpdateConnectionStatusImpl));
         }
 
+        private bool balloonTipShown = false;
         private void UpdateConnectionStatusImpl()
         {
             notifyIcon.Text = appData.ConnectionStatus;
             menuItemSetting.Enabled = appData.Connected;
             menuItemView.Enabled = appData.Connected;
+
+            if (appData.Connected && !balloonTipShown)
+            {
+                notifyIcon.ShowBalloonTip(5000, Strings.welcome, Strings.welcomeBody, ToolTipIcon.Info);
+                notifyIcon.BalloonTipClicked += notifyIcon_BalloonTipClicked;
+            }
+        }
+
+        private void notifyIcon_BalloonTipClicked(object sender, EventArgs e)
+        {
+            SensocolSocket.GetInstance().RequestLoginTokenFor(AppConfig.ViewAnalysisUrl);
         }
 
         public void UpdateStatusIcon()
@@ -289,5 +301,7 @@ namespace Brainpage
         {
             webBrowser.Show();
         }
+
+
     }
 }

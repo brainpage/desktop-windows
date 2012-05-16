@@ -144,4 +144,10 @@
   <data name="viewSetting" xml:space="preserve">
     <value>Go to Settings ...</value>
   </data>
+  <data name="welcome" xml:space="preserve">
+    <value>Welcome to Brainpage</value>
+  </data>
+  <data name="welcomeBody" xml:space="preserve">
+    <value>Click here to see data analysis charts</value>
+  </data>
 </root>

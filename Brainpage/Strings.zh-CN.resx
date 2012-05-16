@@ -144,4 +144,10 @@
   <data name="viewSetting" xml:space="preserve">
     <value>设置</value>
   </data>
+  <data name="welcome" xml:space="preserve">
+    <value>欢迎使用Brainpage</value>
+  </data>
+  <data name="welcomeBody" xml:space="preserve">
+    <value>点击此处查看数据分析图表</value>
+  </data>
 </root>
